@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шпаргалка Debian Linux</title>
+    <title>Debian Cheat Шпаргалка</title>
 
     <style>
         #search-input {
@@ -130,6 +130,25 @@
         .badge-net { background: #00897b; color: #fff; }
         .badge-sec { background: #c62828; color: #fff; }
         .badge-db { background: #5c6bc0; color: #fff; }
+
+        /* Замечание о sudo в Debian */
+        .notice {
+            background: #1e3a5f;
+            border-left: 4px solid #00b0ff;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            grid-column: 1 / -1;
+        }
+        .notice code {
+            background: #111;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #ffcc00;
+            font-size: 12px;
+        }
 
         /* Tooltip */
         .tip {
@@ -293,13 +312,20 @@ body {
 </head>
 <body>
     <div class="container">
-        <h1>🐧 Шпаргалка Debian Linux — Dev & Deploy</h1>
+        <h1>🐧 Debian Cheat Шпаргалка — Dev & Deploy</h1>
 
-        <!-- ==================== 1. Самые важные ==================== -->
+        <div class="notice">
+            ⚠️ В Debian <b>sudo</b> может быть не установлен по умолчанию.
+            Используй <code>su -</code> для переключения на root (команды без sudo)
+            или установи sudo: <code>apt update && apt install sudo -y && usermod -aG sudo $USER</code>
+            (потребуется перелогин).
+        </div>
+
         <div class="section">
             <h2>⭐ Самые важные команды <span class="badge badge-hot">HOT</span></h2>
             <table>
                 <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="В Debian sudo нет по умолчанию. su - переключает на root (запросит пароль root). exit — вернуться к обычному пользователю. Выход из root = Ctrl+D или exit.">su -</td><td>Переключиться на root (если нет sudo)<span class="hint">exit = вернуться к пользователю</span></td></tr>
                 <tr><td class="command tip" data-tip="Обновляет список доступных пакетов из репозиториев. НЕ обновляет сами пакеты. Запускай первой перед upgrade.">sudo apt update</td><td>Обновить список пакетов<span class="hint">⚠️ Всегда делай перед <b>upgrade</b> или <b>install</b></span></td></tr>
                 <tr><td class="command tip" data-tip="Обновляет все установленные пакеты до последних версий. НЕ удаляет пакеты и НЕ устанавливает новые.">sudo apt upgrade</td><td>Обновить все пакеты<span class="hint">Безопасное обновление без удаления</span></td></tr>
                 <tr><td class="command tip" data-tip="full-upgrade может удалять пакеты и устанавливать новые для разрешения конфликтов зависимостей. Используй для мажорных обновлений системы.">sudo apt full-upgrade</td><td>Полное обновление системы <span class="badge badge-hot">!</span><span class="hint">Может удалить пакеты при конфликтах</span></td></tr>
@@ -315,7 +341,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 2. Пакеты ==================== -->
+        
         <div class="section">
             <h2>📦 Управление пакетами <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -333,7 +359,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 3. Файлы ==================== -->
+        
         <div class="section">
             <h2>📁 Файлы и директории <span class="badge badge-hot">HOT</span></h2>
             <table>
@@ -353,7 +379,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 4. Процессы ==================== -->
+        
         <div class="section">
             <h2>⚙️ Процессы и мониторинг <span class="badge badge-dev">DEV</span></h2>
             <table>
@@ -371,7 +397,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 5. Сеть ==================== -->
+        
         <div class="section">
             <h2>🌐 Сеть <span class="badge badge-net">NET</span></h2>
             <table>
@@ -390,7 +416,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 6. SSH ==================== -->
+        
         <div class="section">
             <h2>🔑 SSH и безопасность <span class="badge badge-sec">SEC</span></h2>
             <table>
@@ -408,7 +434,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 7. Systemd ==================== -->
+        
         <div class="section">
             <h2>🔧 Systemd (сервисы) <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -429,10 +455,11 @@ body {
                 <tr><td class="command tip" data-tip="LimitNOFILE=65536 — лимит открытых файлов (нужно для БД, веб-серверов). LimitNPROC= — макс процессов. TimeoutStartSec=300 — ждать запуска 5 мин. TimeoutStopSec=30 — ждать остановки 30с. User= — от какого пользователя запускать.">LimitNOFILE=65536</td><td>Лимиты ресурсов (файлы, процессы, таймауты)<span class="hint">Для БД и веб-серверов увеличь LimitNOFILE</span></td></tr>
                 <tr><td class="command tip" data-tip="systemd-analyze — время загрузки. systemd-analyze blame — какие службы дольше всего грузятся. systemd-analyze critical-chain — цепочка зависимостей. systemd-analyze verify файл.service — проверить синтаксис.">systemd-analyze blame</td><td>Анализ загрузки системы и сервисов<span class="hint">blame = кто тормозит загрузку, verify = проверить синтаксис</span></td></tr>
                 <tr><td class="command tip" data-tip="systemd-run --unit=mycmd --user --on-calendar='10:00' /bin/echo hello — создать временный timer из CLI. systemd-run -u --scope -p MemoryMax=100M команда — ограничить память. systemd-cat echo hello — записать вывод в journald.">systemd-run --on-calendar '10:00'</td><td>Создать timer/service на лету (из командной строки)<span class="hint">Удобно для разовых задач без создания файлов</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl edit nginx — создать drop-in override (файл в /etc/systemd/system/nginx.service.d/override.conf). Добавляешь только те опции, которые хочешь переопределить. Безопаснее чем менять оригинальный .service.">sudo systemctl edit сервис</td><td>Переопределить конфиг сервиса (drop-in)<span class="hint">Создаёт override.conf — безопаснее чем менять оригинал</span></td></tr>
             </table>
         </div>
 
-        <!-- ==================== 8. Логи ==================== -->
+        
         <div class="section">
             <h2>📋 Логи <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -451,7 +478,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 9. Пользователи ==================== -->
+        
         <div class="section">
             <h2>👤 Пользователи и права <span class="badge badge-sec">SEC</span></h2>
             <table>
@@ -467,7 +494,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 10. Диски ==================== -->
+        
         <div class="section">
             <h2>💾 Диски и файловые системы <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -485,7 +512,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 11. Git ==================== -->
+        
         <div class="section">
             <h2>🔀 Git <span class="badge badge-dev">DEV</span></h2>
             <table>
@@ -511,10 +538,11 @@ body {
                 <tr><td class="command tip" data-tip="git reflog — история ВСЕХ действий (включая reset, rebase). Можно восстановить 'потерянные' коммиты: git checkout HEAD@{2}. Reflog хранится 90 дней.">git reflog</td><td>История всех действий (страховка)<span class="hint">Поможет после ошибочного reset --hard!</span></td></tr>
                 <tr><td class="command tip" data-tip="Git hooks — скрипты в .git/hooks/: pre-commit (перед коммитом), pre-push (перед push). pre-commit — проверка линтером, тестами. chmod +x .git/hooks/pre-commit для активации.">.git/hooks/pre-commit</td><td>Git hooks (автоматизация перед коммитом/push)<span class="hint">Можно авто-запускать линтер, тесты, форматтер</span></td></tr>
                 <tr><td class="command tip" data-tip="git submodule add URL папка — добавить подмодуль. git clone --recurse-submodules URL — клонировать с подмодулями. git submodule update --init — подтянуть подмодули. git submodule update --remote — обновить.">git submodule add URL</td><td>Подмодули (репозиторий внутри репозитория)<span class="hint">clone --recurse-submodules = всё сразу</span></td></tr>
+                <tr><td class="command tip" data-tip="git describe --tags — показать ближайший тег + кол-во коммитов после него (напр. v1.2.3-5-gabc1234). Полезно для версионирования в CI/CD. git describe --always — всегда показывать что-то, даже без тегов.">git describe --tags</td><td>Версия из тегов (для CI/CD)<span class="hint">v1.2.3-5-gabc1234 = 5 коммитов после тега</span></td></tr>
             </table>
         </div>
 
-        <!-- ==================== 12. Nginx ==================== -->
+        
         <div class="section">
             <h2>🌐 Nginx (веб-сервер) <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -532,7 +560,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 13. Docker ==================== -->
+        
         <div class="section">
             <h2>🐳 Docker <span class="badge badge-dev">DEV</span> <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -561,7 +589,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 14. Python ==================== -->
+        
         <div class="section">
             <h2>🐍 Python <span class="badge badge-dev">DEV</span></h2>
             <table>
@@ -579,7 +607,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 15. Node.js ==================== -->
+        
         <div class="section">
             <h2>🟢 Node.js / npm <span class="badge badge-dev">DEV</span></h2>
             <table>
@@ -593,7 +621,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 16. Базы данных ==================== -->
+        
         <div class="section">
             <h2>🗄️ Базы данных <span class="badge badge-db">DB</span></h2>
             <table>
@@ -608,7 +636,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 17. Kubernetes ==================== -->
+        
         <div class="section">
             <h2>☸️ Kubernetes <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -626,7 +654,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 18. Ansible ==================== -->
+        
         <div class="section">
             <h2>🤖 Ansible <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -640,7 +668,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 19. CI/CD и деплой ==================== -->
+        
         <div class="section">
             <h2>🚀 CI/CD и Деплой <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -655,7 +683,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 20. Мониторинг ==================== -->
+        
         <div class="section">
             <h2>📊 Мониторинг и алертинг <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -669,7 +697,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 21. Редакторы ==================== -->
+        
         <div class="section">
             <h2>✏️ Текстовые редакторы <span class="badge badge-dev">DEV</span></h2>
             <table>
@@ -685,7 +713,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 22. Переменные и окружение ==================== -->
+        
         <div class="section">
             <h2>🔧 Переменные окружения <span class="badge badge-dev">DEV</span></h2>
             <table>
@@ -699,7 +727,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 23. Полезные утилиты ==================== -->
+        
         <div class="section">
             <h2>🛠️ Полезные утилиты <span class="badge badge-dev">DEV</span></h2>
             <table>
@@ -715,7 +743,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 24. Система ==================== -->
+        
         <div class="section">
             <h2>🖥️ Система и ядро <span class="badge badge-prod">PROD</span></h2>
             <table>
@@ -733,7 +761,7 @@ body {
             </table>
         </div>
 
-        <!-- ==================== 25. Bash скрипты ==================== -->
+        
         <div class="section">
             <h2>📝 Bash скрипты <span class="badge badge-dev">DEV</span></h2>
             <table>
@@ -750,7 +778,7 @@ body {
         </div>
 
         <footer>
-            🐧 Шпаргалка Debian Linux — 25 разделов • 250+ команд • Dev & Deploy • Отсортировано по частоте использования<br>
+            🐧 Debian Cheat Шпаргалка — 25 разделов • 257 команд • Dev & Deploy • Отсортировано по частоте использования<br>
             <span style="font-size:11px; color:#555;">Наведите на команду для подсказки • Колонки адаптируются: 1 → 2 → 3 → 4</span>
         </footer>
     </div>

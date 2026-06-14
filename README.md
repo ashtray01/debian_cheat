@@ -2,7 +2,7 @@
 
 Единый HTML-файл (self-contained) с самыми важными командами Linux для разработки и деплоя.
 
-> ⚠️ В Debian **sudo** может быть не установлен по умолчанию.
+> ⚠️ В Debian **sudo** не установлен по умолчанию.
 > Используй `su -` для перехода на root или установи sudo:
 > `apt update && apt install sudo -y && usermod -aG sudo $USER`
 

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шпаргалка Debian Linux</title>
+
+    <style>
+        #search-input {
+            position: fixed; top: 10px; left: 10px; z-index: 1000;
+            padding: 5px 8px; font-size: 11px; border-radius: 4px;
+            border: 1px solid #444; background: #2a2a3d; color: #e0e0e0;
+            width: 150px; outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+        #search-input:focus { border-color: #00b0ff; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e2f;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            padding-top: 40px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        h1 {
+            color: #00b0ff;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+            grid-column: 1 / -1;
+        }
+
+        h2 {
+            color: #4fc3f7;
+            border-bottom: 2px solid #4fc3f7;
+            padding-bottom: 6px;
+            font-size: 20px;
+            margin-top: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        /* Адаптивность: количество колонок зависит от ширины экрана */
+        @media (min-width: 800px)  { .container { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1200px) { .container { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1600px) { .container { grid-template-columns: repeat(4, 1fr); } }
+
+        table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            margin: 12px 0;
+            background: #2a2a3d;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        th:first-child, td:first-child {
+            width: 45%;
+        }
+
+        th {
+            background: #1976d2;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:hover {
+            background: #3a3a55;
+        }
+
+        .command {
+            font-family: 'Courier New', monospace;
+            background: #111;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ffcc00;
+            white-space: pre-wrap;
+            word-break: break-word;
+            cursor: help;
+            position: relative;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .hint {
+            display: block;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            margin-left: 6px;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+        .badge-hot { background: #e53935; color: #fff; }
+        .badge-new { background: #43a047; color: #fff; }
+        .badge-dev { background: #8e24aa; color: #fff; }
+        .badge-prod { background: #f57c00; color: #fff; }
+        .badge-net { background: #00897b; color: #fff; }
+        .badge-sec { background: #c62828; color: #fff; }
+        .badge-db { background: #5c6bc0; color: #fff; }
+
+        /* Tooltip */
+        .tip {
+            position: relative;
+        }
+        .tip::after {
+            content: attr(data-tip);
+            position: absolute;
+            left: 0;
+            bottom: 120%;
+            background: #333;
+            color: #ffcc00;
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            white-space: normal;
+            width: 260px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            font-family: 'Segoe UI', sans-serif;
+            color: #e0e0e0;
+        }
+        .tip:hover::after {
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #777;
+            font-size: 13px;
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 639px) {
+            .container { grid-template-columns: 1fr; }
+            h1 { grid-column: 1 / -1; }
+        }
+
+        .subtable-desc {
+            font-size: 11px;
+            color: #999;
+            background: #222235;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .code-block {
+            background: #111;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #e0e0e0;
+            overflow-x: auto;
+            margin: 4px 0;
+        }
+
+        .code-block .cmd {
+            color: #ffcc00;
+        }
+        .code-block .comment {
+            color: #666;
+            font-style: italic;
+        }
+        .code-block .flag {
+            color: #4fc3f7;
+        }
+
+        /* Запрет горизонтального скролла — только на мобилках (там таблицы скроллятся внутри) */
+@media (max-width: 800px) {
+body {
+    overflow-x: hidden;
+}
+}
+
+/* Адаптивность таблиц: на экранах уже 800px добавляем прокрутку */
+@media (max-width: 800px) {
+    .section table,
+    .container table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+    }
+
+    /* Разрешаем перенос текста в ячейках (кроме команды) */
+    .section table td,
+    .section table th {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    /* Команды оставляем без переноса – для них будет горизонтальный скролл */
+    .command {
+        white-space: nowrap;
+    }
+
+    /* Уменьшаем отступы и шрифты для экономии места */
+    .section {
+        max-width: 100%;
+        margin: 0 0 20px 0;
+    }
+
+    th, td {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    .command {
+        font-size: 11px;
+        padding: 1px 4px;
+    }
+
+    /* Чтобы tooltip не выезжал за экран */
+    .tip::after {
+        width: 200px;
+        left: auto;
+        right: 0;
+        bottom: 140%;
+    }
+    }
+    
+    /* Для очень маленьких экранов (до 480px) – ещё более компактно */
+    @media (max-width: 480px) {
+        th, td {
+            padding: 4px 6px;
+            font-size: 11px;
+        }
+    
+        .badge {
+            display: none; /* скрываем бейджики на совсем маленьких экранах */
+        }
+    
+        .hint {
+            font-size: 9px;
+        }
+    
+        #search-input {
+            width: 120px;
+            font-size: 10px;
+            top: 5px;
+            left: 5px;
+        }
+    
+        body {
+            padding: 10px;
+            padding-top: 40px;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐧 Шпаргалка Debian Linux — Dev & Deploy</h1>
+
+        <!-- ==================== 1. Самые важные ==================== -->
+        <div class="section">
+            <h2>⭐ Самые важные команды <span class="badge badge-hot">HOT</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="Обновляет список доступных пакетов из репозиториев. НЕ обновляет сами пакеты. Запускай первой перед upgrade.">sudo apt update</td><td>Обновить список пакетов<span class="hint">⚠️ Всегда делай перед <b>upgrade</b> или <b>install</b></span></td></tr>
+                <tr><td class="command tip" data-tip="Обновляет все установленные пакеты до последних версий. НЕ удаляет пакеты и НЕ устанавливает новые.">sudo apt upgrade</td><td>Обновить все пакеты<span class="hint">Безопасное обновление без удаления</span></td></tr>
+                <tr><td class="command tip" data-tip="full-upgrade может удалять пакеты и устанавливать новые для разрешения конфликтов зависимостей. Используй для мажорных обновлений системы.">sudo apt full-upgrade</td><td>Полное обновление системы <span class="badge badge-hot">!</span><span class="hint">Может удалить пакеты при конфликтах</span></td></tr>
+                <tr><td class="command tip" data-tip="install -y автоматически отвечает yes на все вопросы. Удобно в скриптах. Можно указывать несколько пакетов: apt install nginx git curl -y">sudo apt install -y пакет</td><td>Установить пакет (авто-yes)<span class="hint">-y = без подтверждения</span></td></tr>
+                <tr><td class="command tip" data-tip="purge удаляет пакет + ВСЕ его конфигурационные файлы. remove оставляет конфиги. Используй purge для полной очистки.">sudo apt purge пакет</td><td>Удалить пакет + конфиги<span class="hint">Чистит всё подчистую</span></td></tr>
+                <tr><td class="command tip" data-tip="autoremove удаляет пакеты, которые были установлены как зависимости, но больше не нужны. Освобождает место.">sudo apt autoremove --purge</td><td>Удалить ненужные зависимости<span class="hint">--purge также чистит конфиги</span></td></tr>
+                <tr><td class="command tip" data-tip="ls -la: -l = подробный формат (права, владелец, размер, дата), -a = показать скрытые файлы (начинающиеся с точки)">ls -la</td><td>Всё содержимое папки (включая скрытые)<span class="hint">-l = подробно, -a = скрытые</span></td></tr>
+                <tr><td class="command tip" data-tip="df -h показывает использование дисков в человеко-читаемом формате (GB, MB). -i покажет использование inodes.">df -h</td><td>Место на дисках (читабельно)<span class="hint">-h = human readable (GB, MB)</span></td></tr>
+                <tr><td class="command tip" data-tip="free -h: total — всего памяти, used — используется, free — свободно, available — доступно для новых приложений (важнее чем free!).">free -h</td><td>Использование ОЗУ<span class="hint">Смотри колонку <b>available</b>, а не free</span></td></tr>
+                <tr><td class="command tip" data-tip="uptime показывает: текущее время, время работы системы, кол-во пользователей, load average за 1, 5, 15 мин. Load > кол-ва ядер = перегрузка.">uptime</td><td>Время работы + Load Average<span class="hint">Load &gt; ядер = система перегружена</span></td></tr>
+                <tr><td class="command tip" data-tip="history | tail -50 показывает последние 50 команд. history | grep 'ssh' — найти команду в истории. Ctrl+R — интерактивный поиск.">history | tail -50</td><td>История команд<span class="hint">Ctrl+R = быстрый поиск в истории</span></td></tr>
+                <tr><td class="command tip" data-tip="tail -f следит за файлом в реальном времени. Используй для логов: tail -f /var/log/syslog. Ctrl+C для выхода.">tail -f /var/log/syslog</td><td>Следить за файлом в реальном времени<span class="hint">Ctrl+C = выход</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 2. Пакеты ==================== -->
+        <div class="section">
+            <h2>📦 Управление пакетами <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="Ищет пакет в кэше по названию и описанию. apt search nginx ищет всё с nginx в названии. Можно использовать регулярные выражения.">apt search слово</td><td>Поиск пакета в репозитории<span class="hint">Ищет по имени и описанию</span></td></tr>
+                <tr><td class="command tip" data-tip="Показывает детальную информацию: версия, зависимости, описание, maintainer, размер. Полезно перед установкой.">apt show пакет</td><td>Детали пакета<span class="hint">Версия, зависимости, описание</span></td></tr>
+                <tr><td class="command tip" data-tip="apt list --installed | grep nginx — найти конкретный установленный пакет. Без grep — весь список.">apt list --installed</td><td>Все установленные пакеты<span class="hint">Пайп с grep для поиска</span></td></tr>
+                <tr><td class="command tip" data-tip="dpkg -l показывает ВСЕ пакеты (включая удалённые с остатками). dpkg -L пакет — показать файлы пакета. dpkg -s пакет — статус пакета.">dpkg -l | grep пакет</td><td>Поиск через dpkg (низкий уровень)<span class="hint">dpkg — базовый менеджер .deb</span></td></tr>
+                <tr><td class="command tip" data-tip="apt-cache depends пакет — показать зависимости. apt-cache rdepends пакет — кто зависит от этого пакета.">apt-cache depends пакет</td><td>Показать зависимости пакета<span class="hint">rdepends — обратные зависимости</span></td></tr>
+                <tr><td class="command tip" data-tip="apt clean — удалить ВСЕ скачанные .deb из кэша. autoclean — удалить только старые версии. Кэш в /var/cache/apt/archives/.">sudo apt clean</td><td>Очистить кэш скачанных пакетов<span class="hint">Освобождает место в /var/cache</span></td></tr>
+                <tr><td class="command tip" data-tip="apt-get update && apt-get install пакет — классический вариант. apt install — более новая обёртка с прогресс-баром и цветами.">sudo apt-get install пакет</td><td>Установка (классический apt-get)<span class="hint">apt — новый, apt-get — для скриптов</span></td></tr>
+                <tr><td class="command tip" data-tip="dpkg -i файл.deb — установить локальный .deb файл. Если ошибки зависимостей: apt --fix-broken install.">sudo dpkg -i файл.deb</td><td>Установить локальный .deb<span class="hint">apt --fix-broken install = фикс зависимостей</span></td></tr>
+                <tr><td class="command tip" data-tip="Добавляет репозиторий в sources.list.d. После add-apt-repository нужен apt update. ppa: — персональные архивы Ubuntu.">sudo add-apt-repository ppa:имя/ppa</td><td>Добавить репозиторий PPA<span class="hint">После этого — apt update!</span></td></tr>
+                <tr><td class="command tip" data-tip="Показывает какие пакеты будут установлены/обновлены/удалены БЕЗ выполнения. Полезно для проверки перед реальным запуском.">sudo apt install пакет --dry-run</td><td>Симуляция установки (без действий)<span class="hint">Проверка перед реальным запуском</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 3. Файлы ==================== -->
+        <div class="section">
+            <h2>📁 Файлы и директории <span class="badge badge-hot">HOT</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="cp -r — рекурсивное копирование папок. cp -a — сохранить все атрибуты (права, владельцы, время). cp -v — показывать процесс.">cp -av /source /dest</td><td>Копировать с сохранением прав<span class="hint">-a = preserve all, -v = verbose</span></td></tr>
+                <tr><td class="command tip" data-tip="mv работает и для перемещения, и для переименования. Если dest — папка, файл перемещается в неё. mv -i — спросить перед перезаписью.">mv -i файл /путь/</td><td>Переместить / переименовать<span class="hint">-i = спросить перед перезаписью</span></td></tr>
+                <tr><td class="command tip" data-tip="rm -rf — БЕЗОПАСНОСТИ НЕТ! Удаляет всё без подтверждения. rm -ri — спрашивать. rm -rf / — НИКОГДА НЕ ЗАПУСКАЙ!">rm -rf папка</td><td>Удалить рекурсивно <span class="badge badge-hot">ОСТОРОЖНО!</span><span class="hint">НЕТ корзины! Восстановить почти невозможно!</span></td></tr>
+                <tr><td class="command tip" data-tip="less позволяет скроллить, искать (/текст), выходить (q). cat выводит всё сразу. head -20 — первые 20 строк. tail -20 — последние 20.">less файл</td><td>Просмотр файла с навигацией<span class="hint">/текст = поиск, q = выход, G = конец</span></td></tr>
+                <tr><td class="command tip" data-tip="-i = регистронезависимый. -r = рекурсивно по папкам. -n = номера строк. -v = инвертировать (НЕ содержит). grep -rn 'error' /var/log/">grep -rn "текст" /путь</td><td>Поиск текста в файлах рекурсивно<span class="hint">-r = рекурсивно, -n = номера строк, -i = без учёта регистра</span></td></tr>
+                <tr><td class="command tip" data-tip="find / -type f -name '*.conf' — искать файлы. -type d — директории. -mtime -7 — изменены за 7 дней. -size +100M — больше 100MB. -exec rm {} \; — выполнить команду.">find /путь -type f -name "*.conf"</td><td>Поиск файлов по имени/типу/размеру<span class="hint">-mtime -7 = за 7 дней, -size +100M = большие</span></td></tr>
+                <tr><td class="command tip" data-tip="mkdir -p создаёт родительские директории если их нет. mkdir -p /a/b/c — создаст всю цепочку.">mkdir -p /путь/к/папке</td><td>Создать папку (включая родителей)<span class="hint">-p = создать промежуточные папки</span></td></tr>
+                <tr><td class="command tip" data-tip="ln -s /реальный/файл /ссылка — создать символическую ссылку (как ярлык). Если удалить оригинал — ссылка сломается.">ln -s /реальный /ссылка</td><td>Символическая ссылка (symlink)<span class="hint">Как ярлык в Windows</span></td></tr>
+                <tr><td class="command tip" data-tip="chmod: r=4, w=2, x=1. 755 = rwxr-xr-x (владелец всё, остальные чтение+выполнение). 644 = rw-r--r--. 600 = только владелец.">chmod 755 /файл</td><td>Права доступа (числовой формат)<span class="hint">7=чтение+запись+выполнение, 5=чтение+выполнение</span></td></tr>
+                <tr><td class="command tip" data-tip="chown пользователь:группа файл. -R = рекурсивно. chown -R www-data:www-data /var/www — типично для веб-серверов.">sudo chown -R user:group /папка</td><td>Сменить владельца и группу<span class="hint">-R = рекурсивно, www-data для веб</span></td></tr>
+                <tr><td class="command tip" data-tip="du -sh * — размер каждой папки в текущей. du -ah --max-depth=2 / | sort -rh | head -20 — 20 самых больших папок.">du -sh /путь</td><td>Размер папки/файла<span class="hint">du -sh * = размеры всех папок</span></td></tr>
+                <tr><td class="command tip" data-tip="tar -czvf archive.tar.gz /путь — создать. tar -xzvf archive.tar.gz — извлечь. -z = gzip, -j = bzip2, -J = xz.">tar -czvf архив.tar.gz /папка</td><td>Создать tar.gz архив<span class="hint">-c=создать, -z=gzip, -v=показать, -f=файл</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 4. Процессы ==================== -->
+        <div class="section">
+            <h2>⚙️ Процессы и мониторинг <span class="badge badge-dev">DEV</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="ps aux: USER, PID, %CPU, %MEM, VSZ, RSS, TTY, STAT, START, TIME, COMMAND. STAT: R=running, S=sleeping, Z=zombie, D=uninterruptible.">ps aux | grep имя</td><td>Поиск процесса<span class="hint">STAT: R=run, S=sleep, Z=zombie, D=disk wait</span></td></tr>
+                <tr><td class="command tip" data-tip="kill -15 (SIGTERM) — мягкая остановка. kill -9 (SIGKILL) — принудительная. kill -1 (SIGHUP) — перезагрузка конфига. Всегда пробуй -15 сначала!">kill -15 PID</td><td>Остановить процесс (мягко)<span class="hint">-15 = TERM (мягко), -9 = KILL (жёстко)</span></td></tr>
+                <tr><td class="command tip" data-tip="killall отправляет сигнал ВСЕМ процессам с именем. killall -9 nginx — убить все процессы nginx. pkill — по шаблону.">killall имя_процесса</td><td>Убить все процессы по имени<span class="hint">Опасно! Убьёт ВСЕ с таким именем</span></td></tr>
+                <tr><td class="command tip" data-tip="htop — интерактивный монитор. F1 = помощь, F5 = дерево, F6 = сортировка, F9 = kill, q = выход. Цвета: CPU, RAM, Swap.">htop</td><td>Интерактивный мониторинг<span class="hint">F5=дерево, F6=сортировка, F9=kill</span></td></tr>
+                <tr><td class="command tip" data-tip="top — встроенный монитор. P = сортировка по CPU, M = по памяти. q = выход. Менее удобный чем htop, но всегда доступен.">top</td><td>Мониторинг (встроенный)<span class="hint">P=по CPU, M=по RAM, q=выход</span></td></tr>
+                <tr><td class="command tip" data-tip="nohup — no hang up, процесс не умрёт при закрытии терминала. & — фон. nohup cmd & > nohup.out 2>&1. Лучше использовать screen/tmux.">nohup команда &</td><td>Запустить в фоне (без привязки к терминалу)<span class="hint">Лучше используй <b>tmux</b> или <b>screen</b></span></td></tr>
+                <tr><td class="command tip" data-tip="tmux new -s имя — создать сессию. Ctrl+B, D — отключиться (процесс работает). tmux attach -t имя — вернуться. tmux ls — список.">tmux new -s имя</td><td>Терминальный мультиплексор<span class="hint">Ctrl+B, D = отключиться, процесс жив!</span></td></tr>
+                <tr><td class="command tip" data-tip="lsof -i :8080 — кто использует порт 8080. lsof -u имя — файлы пользователя. lsof /путь — кто использует файл.">lsof -i :порт</td><td>Кто использует порт<span class="hint">Альтернатива: ss -tlnp | grep порт</span></td></tr>
+                <tr><td class="command tip" data-tip="watch -n 2 'команда' — выполняет команду каждые 2 секунды. watch -n 1 'df -h' — следить за местом. watch -n 1 'free -h' — за памятью.">watch -n 2 команда</td><td>Выполнять команду каждые N секунд<span class="hint">watch -n 1 'free -h' = мониторинг RAM</span></td></tr>
+                <tr><td class="command tip" data-tip="nice -n 10 команда — запустить с приоритетом 10 (ниже чем 0). renice -n 5 -p PID — изменить приоритет запущенного. Диапазон: -20 (макс) до 19 (мин).">nice -n 10 команда</td><td>Запустить с пониженным приоритетом<span class="hint">От -20 (высший) до 19 (низший)</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 5. Сеть ==================== -->
+        <div class="section">
+            <h2>🌐 Сеть <span class="badge badge-net">NET</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="ip a — показать все интерфейсы и IP. ip addr show eth0 — конкретный интерфейс. ip -4 a — только IPv4. ip -6 a — только IPv6.">ip addr show</td><td>IP-адреса интерфейсов<span class="hint">ip -4 a = только IPv4</span></td></tr>
+                <tr><td class="command tip" data-tip="ip route show — таблица маршрутизации. default via X.X.X.X — шлюз по умолчанию. ip route add 10.0.0.0/8 via 192.168.1.1 — добавить маршрут.">ip route show</td><td>Таблица маршрутизации (шлюзы)<span class="hint">default via = шлюз по умолчанию</span></td></tr>
+                <tr><td class="command tip" data-tip="ping -c 4 8.8.8.8 — 4 пакета и выход. ping -c 4 google.com — проверка DNS. Если ping по IP работает, а по имени нет — проблема DNS.">ping -c 4 8.8.8.8</td><td>Проверка связи (4 пакета)<span class="hint">-c 4 = 4 пакета, потом выход</span></td></tr>
+                <tr><td class="command tip" data-tip="curl -I URL — только заголовки. curl -o файл URL — скачать. curl -s URL — тихо. curl -X POST -d 'data' URL — POST запрос. curl -v — подробный вывод.">curl -I https://example.com</td><td>HTTP запрос (заголовки)<span class="hint">-I=headers, -o=скачать, -v=подробно</span></td></tr>
+                <tr><td class="command tip" data-tip="wget URL — скачать файл. wget -r URL — рекурсивно (сайт). wget --spider URL — проверить ссылку без скачивания.">wget URL</td><td>Скачать файл<span class="hint">wget -r = рекурсивно, --spider = проверка</span></td></tr>
+                <tr><td class="command tip" data-tip="ss -tlnp: t=tcp, l=listening, n=numeric, p=process. ss -tunap — все TCP+UDP соединения с процессами. Заменяет netstat.">ss -tlnp</td><td>Открытые порты + процессы<span class="hint">-t=tcp, -l=listening, -n=числа, -p=process</span></td></tr>
+                <tr><td class="command tip" data-tip="traceroute показывает каждый хоп до цели. traceroute -T -p 80 google.com — через TCP порт 80 (если ICMP заблокирован).">traceroute хост</td><td>Маршрут до хоста (hop by hop)<span class="hint">traceroute -T -p 80 = через TCP</span></td></tr>
+                <tr><td class="command tip" data-tip="nslookup google.com — IP домена. nslookup google.com 8.8.8.8 — через конкретный DNS. dig google.com — более подробный вывод.">nslookup домен</td><td>DNS-запрос (домен → IP)<span class="hint">dig = более подробный аналог</span></td></tr>
+                <tr><td class="command tip" data-tip="netcat (nc) — швейцарский нож сети. nc -l 8080 — слушать порт. nc хост 80 — подключиться. nc -zv хост 22 — скан порта.">nc -zv хост порт</td><td>Скан порта / тест соединения<span class="hint">nc -l 8080 = слушать, nc хост 80 = коннект</span></td></tr>
+                <tr><td class="command tip" data-tip="ip link set eth0 down/up — выключить/включить интерфейс. ip addr add 192.168.1.10/24 dev eth0 — назначить IP. ifdown/ifup — альтернатива.">sudo ip link set eth0 up</td><td>Включить/выключить интерфейс<span class="hint">ip link set eth0 down/up</span></td></tr>
+                <tr><td class="command tip" data-tip="ifconfig устарел! Используй ip a. Но ifconfig всё ещё работает: ifconfig eth0 192.168.1.10 netmask 255.255.255.0 up.">ifconfig</td><td>Сетевые интерфейсы (устарел!)<span class="hint">⚠️ Используй <b>ip addr show</b> вместо ifconfig</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 6. SSH ==================== -->
+        <div class="section">
+            <h2>🔑 SSH и безопасность <span class="badge badge-sec">SEC</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="ssh -p 2222 user@host — нестандартный порт. ssh -i ~/.ssh/key.pem user@host — с ключом. ssh -X user@host — проброс X11 (GUI).">ssh -p порт user@host</td><td>Подключение (нестандартный порт)<span class="hint">-p = порт, -i = ключ, -X = X11 forwarding</span></td></tr>
+                <tr><td class="command tip" data-tip="ssh-copy-id user@host — копирует публичный ключ (~/.ssh/id_rsa.pub) на сервер. После этого вход без пароля. Ключи в ~/.ssh/authorized_keys.">ssh-copy-id user@host</td><td>Копировать SSH ключ на сервер<span class="hint">После этого — вход без пароля!</span></td></tr>
+                <tr><td class="command tip" data-tip="scp файл user@host:/путь — загрузить. scp user@host:/путь . — скачать. scp -r папка user@host:/путь — рекурсивно. scp -P 2222 — порт.">scp файл user@host:/путь</td><td>Копирование файлов через SSH<span class="hint">-r = рекурсивно, -P = порт</span></td></tr>
+                <tr><td class="command tip" data-tip="rsync -avz /source user@host:/dest — синхронизация. -a=archive (сохраняет всё), -v=показать, -z=сжатие. rsync умный — копирует только изменения!">rsync -avz /local user@host:/remote</td><td>Синхронизация файлов (умный rsync!)<span class="hint">Копирует ТОЛЬКО изменения! Быстрее scp!</span></td></tr>
+                <tr><td class="command tip" data-tip="ssh-keygen -t ed25519 -C 'email' — современный алгоритм. ed25519 быстрее и безопаснее RSA. Файлы: id_ed25519 (приватный), id_ed25519.pub (публичный).">ssh-keygen -t ed25519</td><td>Генерация SSH ключа (ed25519)<span class="hint">ed25519 — современнее и безопаснее RSA</span></td></tr>
+                <tr><td class="command tip" data-tip="ssh -L 8080:localhost:80 user@host — проброс порта 80 с сервера на твой localhost:8080. Доступ к сервисам сервера локально.">ssh -L 8080:localhost:80 user@host</td><td>Проброс порта (local forwarding)<span class="hint">Доступ к серверным сервисам через localhost</span></td></tr>
+                <tr><td class="command tip" data-tip="~/.ssh/config: Host myserver → HostName, User, Port, IdentityFile. После настройки: ssh myserver вместо ssh user@host -p 2222 -i key.">~/.ssh/config</td><td>Конфиг SSH (алиасы серверов)<span class="hint">ssh myserver вместо полной команды!</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo ufw allow 22 — разрешить SSH. sudo ufw allow from 192.168.1.0/24 to any port 22 — только из локальной сети. sudo ufw enable — включить.">sudo ufw allow 22</td><td>Firewall: разрешить порт<span class="hint">ufw allow from IP to any port 22 — по IP</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo ufw status verbose — подробный статус. sudo ufw status numbered — с номерами правил. sudo ufw delete 3 — удалить правило №3.">sudo ufw status verbose</td><td>Статус firewall подробно<span class="hint">ufw delete N — удалить правило по номеру</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo fail2ban-client status sshd — статус защиты SSH. fail2ban банит IP после N неудачных попыток входа. Конфиг: /etc/fail2ban/jail.local.">sudo fail2ban-client status</td><td>Статус Fail2Ban (защита от брутфорса)<span class="hint">Банит IP после N неудачных входов</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 7. Systemd ==================== -->
+        <div class="section">
+            <h2>🔧 Systemd (сервисы) <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl start nginx — запустить сервис. sudo systemctl restart nginx — перезапустить. sudo systemctl reload nginx — перечитать конфиг без остановки.">sudo systemctl start сервис</td><td>Запустить сервис<span class="hint">restart = перезапуск, reload = перечитать конфиг</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl enable nginx — автозапуск при загрузке. disable — отключить. is-enabled — проверить. enable не запускает, только включает автозапуск!">sudo systemctl enable сервис</td><td>Включить автозапуск<span class="hint">enable ≠ start! Только автозапуск при boot</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl status nginx — статус, последние логи, PID, memory. active (running) = работает. failed = ошибка. inactive = остановлен.">sudo systemctl status сервис</td><td>Статус сервиса + логи<span class="hint">active (running) = OK, failed = ошибка</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl stop nginx — остановить. sudo systemctl disable nginx — убрать из автозапуска. Комбинация для полного отключения.">sudo systemctl stop сервис</td><td>Остановить сервис<span class="hint">+ disable = убрать из автозапуска</span></td></tr>
+                <tr><td class="command tip" data-tip="journalctl -u nginx — логи сервиса. -f = следить в реальном времени. -e = конец (к новейшим). --since '2024-01-01' — с даты. --no-pager = без less.">journalctl -u сервис -f</td><td>Логи сервиса в реальном времени<span class="hint">-f=следить, -e=конец, --since=дата</span></td></tr>
+                <tr><td class="command tip" data-tip="journalctl --since '1 hour ago' — за последний час. --since '2024-01-01 10:00' — с точной даты. journalctl -p err — только ошибки.">journalctl --since '1 hour ago'</td><td>Системные логи за период<span class="hint">-p err = только ошибки, -p warning = предупреждения</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl list-units --type=service — все сервисы. --state=failed — только упавшие. list-unit-files — все unit-файлы (включая disabled).">sudo systemctl list-units --type=service</td><td>Список всех сервисов<span class="hint">--state=failed = только упавшие</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl daemon-reload — перечитать unit-файлы. Нужно после изменения /etc/systemd/system/*.service! Без этого systemctl не увидит изменения.">sudo systemctl daemon-reload</td><td>Перечитать unit-файлы<span class="hint">Нужно после изменения .service файлов!</span></td></tr>
+                <tr><td class="command tip" data-tip="/etc/systemd/system/имя.service: [Unit] — описание, [Service] — ExecStart, User, Restart, [Install] — WantedBy=multi-user.target. Restart=always — автоперезапуск при крахе.">/etc/systemd/system/имя.service</td><td>Файл юнита (создание сервиса)<span class="hint">Restart=always — автоперезапуск при крахе</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl kill --signal=HUP nginx — послать SIGHUP (перезагрузка конфига). sudo systemctl reset-failed — сбросить статус failed.">sudo systemctl reset-failed</td><td>Сбросить статус failed-сервисов<span class="hint">Полезно после исправления ошибки</span></td></tr>
+                <tr><td class="command tip" data-tip="Пример /etc/systemd/system/app.service: [Unit] Description=My app, After=network.target. [Service] ExecStart=/usr/bin/python3 /opt/app/main.py, User=appuser, Restart=always, RestartSec=5, EnvironmentFile=/opt/app/.env. [Install] WantedBy=multi-user.target. После создания: systemctl daemon-reload && systemctl enable --now app.">/etc/systemd/system/app.service</td><td>Пример .service файла (создание сервиса)<span class="hint">daemon-reload → enable --now app</span></td></tr>
+                <tr><td class="command tip" data-tip="systemd timer — замена cron. Создаём app.service и app.timer: [Timer] OnCalendar=daily, Persistent=true. [Install] WantedBy=timers.target. systemctl enable --now app.timer. systemctl list-timers — список.">/etc/systemd/system/app.timer</td><td>Systemd timer (замена cron)<span class="hint">OnCalendar=daily, weekly, Mon..Fri 10:00, *-*-* 00/2:00</span></td></tr>
+                <tr><td class="command tip" data-tip="Environment=MY_VAR=value — прямо в .service. EnvironmentFile=/etc/app.env — файл с KEY=value строками. Удобно для паролей и конфигов. Переменные видны в ExecStart.">EnvironmentFile=/etc/app.env</td><td>Переменные окружения для сервиса<span class="hint">Environment= прямо в файле, EnvironmentFile= из файла</span></td></tr>
+                <tr><td class="command tip" data-tip="LimitNOFILE=65536 — лимит открытых файлов (нужно для БД, веб-серверов). LimitNPROC= — макс процессов. TimeoutStartSec=300 — ждать запуска 5 мин. TimeoutStopSec=30 — ждать остановки 30с. User= — от какого пользователя запускать.">LimitNOFILE=65536</td><td>Лимиты ресурсов (файлы, процессы, таймауты)<span class="hint">Для БД и веб-серверов увеличь LimitNOFILE</span></td></tr>
+                <tr><td class="command tip" data-tip="systemd-analyze — время загрузки. systemd-analyze blame — какие службы дольше всего грузятся. systemd-analyze critical-chain — цепочка зависимостей. systemd-analyze verify файл.service — проверить синтаксис.">systemd-analyze blame</td><td>Анализ загрузки системы и сервисов<span class="hint">blame = кто тормозит загрузку, verify = проверить синтаксис</span></td></tr>
+                <tr><td class="command tip" data-tip="systemd-run --unit=mycmd --user --on-calendar='10:00' /bin/echo hello — создать временный timer из CLI. systemd-run -u --scope -p MemoryMax=100M команда — ограничить память. systemd-cat echo hello — записать вывод в journald.">systemd-run --on-calendar '10:00'</td><td>Создать timer/service на лету (из командной строки)<span class="hint">Удобно для разовых задач без создания файлов</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 8. Логи ==================== -->
+        <div class="section">
+            <h2>📋 Логи <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="/var/log/syslog — общие системные логи. /var/log/auth.log — авторизация (входы, sudo). /var/log/kern.log — ядро. /var/log/dpkg.log — установка пакетов.">cat /var/log/syslog</td><td>Системный лог (общий)<span class="hint">auth.log = авторизация, dpkg.log = пакеты</span></td></tr>
+                <tr><td class="command tip" data-tip="/var/log/nginx/access.log — кто обращался. /var/log/nginx/error.log — ошибки nginx. /var/log/apache2/ — аналогично для Apache.">tail -f /var/log/nginx/error.log</td><td>Логи Nginx (ошибки)<span class="hint">access.log = запросы, error.log = ошибки</span></td></tr>
+                <tr><td class="command tip" data-tip="journalctl -xe: -x = дополнительные пояснения, -e = конец журнала. Показывает последние логи с контекстом. Полезно при ошибках.">journalctl -xe</td><td>Логи с пояснениями (debug)<span class="hint">-x = объяснения ошибок, -e = конец</span></td></tr>
+                <tr><td class="command tip" data-tip="dmesg — сообщения ядра (загрузка, драйверы, железо). dmesg | tail — последние. dmesg -T — с читаемыми датами. dmesg | grep -i error — ошибки.">dmesg | tail -20</td><td>Сообщения ядра<span class="hint">dmesg -T = читаемые даты</span></td></tr>
+                <tr><td class="command tip" data-tip="grep -i 'error\|fail\|critical' /var/log/syslog — найти ошибки. grep -c 'Failed password' /var/log/auth.log — кол-во неудачных входов.">grep -i 'error' /var/log/syslog</td><td>Поиск ошибок в логах<span class="hint">-i = без учёта регистра</span></td></tr>
+                <tr><td class="command tip" data-tip="logrotate конфигурируется в /etc/logrotate.conf и /etc/logrotate.d/. Ротирует (сжимает, удаляет) логи. daily/weekly/monthly, rotate 7, compress.">cat /etc/logrotate.conf</td><td>Конфигурация ротации логов<span class="hint">/etc/logrotate.d/ — конфиги отдельных сервисов</span></td></tr>
+                <tr><td class="command tip" data-tip="/etc/systemd/journald.conf — конфиг journald. SystemMaxUse=500M — макс размер логов (авто-ротация). Compress=yes — сжатие. Storage=persistent — сохранять на диск. SystemMaxFileSize=50M — макс размер одного файла.">cat /etc/systemd/journald.conf</td><td>Настройка journald (размер, сжатие, хранение)<span class="hint">SystemMaxUse=500M — не даст логам забить диск</span></td></tr>
+                <tr><td class="command tip" data-tip="journalctl --rotate — принудительная ротация (начать новый файл). journalctl --vacuum-size=500M — удалить логи старше этого объёма. journalctl --vacuum-time=30d — удалить логи старше 30 дней. journalctl --flush — сбросить из памяти на диск.">journalctl --vacuum-size=500M</td><td>Обслуживание journald (ротация, очистка)<span class="hint">vacuum-size и vacuum-time — экономия места вручную</span></td></tr>
+                <tr><td class="command tip" data-tip="journalctl -p err — только ошибки. journalctl -p err -p warning — ошибки и предупреждения. Уровни: emerg, alert, crit, err, warning, notice, info, debug. journalctl -p err --since '1 hour ago' — ошибки за час.">journalctl -p err --since '1h ago'</td><td>Фильтр по уровню + время<span class="hint">-p err = только ошибки, -p warning = +предупреждения</span></td></tr>
+                <tr><td class="command tip" data-tip="journalctl _SYSTEMD_UNIT=nginx.service — логи конкретного юнита. journalctl _PID=1234 — логи по PID. journalctl _EXE=/usr/bin/python3 — по пути к исполняемому файлу. journalctl -o json-pretty — формат JSON. journalctl -o verbose — все поля.">journalctl _SYSTEMD_UNIT=nginx.service</td><td>Продвинутые фильтры journalctl<span class="hint">_PID, _EXE, _SYSTEMD_UNIT — поля для точной фильтрации</span></td></tr>
+                <tr><td class="command tip" data-tip="journalctl -o json-pretty — JSON с отступами. -o json — одна строка (для парсинга). -o verbose — все поля с описанием. -o cat — только сообщение (без метаданных). -o short — односрочный формат.">journalctl -o json-pretty</td><td>Форматы вывода journalctl<span class="hint">json-pretty = читаемый JSON, cat = только сообщение</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 9. Пользователи ==================== -->
+        <div class="section">
+            <h2>👤 Пользователи и права <span class="badge badge-sec">SEC</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="sudo adduser имя — интерактивное создание (спросит пароль, инфо). useradd — низкоуровневый (без интерактива). adduser = обёртка над useradd.">sudo adduser имя</td><td>Создать пользователя (интерактивно)<span class="hint">adduser удобнее чем useradd</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo usermod -aG sudo имя — добавить в группу sudo (админ). -a = append (добавить, НЕ заменить!), -G = дополнительные группы. БЕЗ -a сотрёт другие группы!">sudo usermod -aG sudo имя</td><td>Добавить в группу (sudo/docker)<span class="hint">-a ОБЯЗАТЕЛЬНО! Без -a сотрёт другие группы!</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo deluser --remove-home имя — удалить пользователя + домашнюю папку. Просто deluser — удалить без папки.">sudo deluser --remove-home имя</td><td>Удалить пользователя + домашнюю папку<span class="hint">--remove-home = удалить /home/имя</span></td></tr>
+                <tr><td class="command tip" data-tip="id имя — UID, GID, группы. groups имя — список групп. whoami — текущий пользователь. last — последние входы. lastb — неудачные входы.">id имя</td><td>Информация о пользователе<span class="hint">last = последние входы, whoami = текущий</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo passwd имя — сменить пароль пользователя. sudo passwd -l имя — заблокировать (lock). sudo passwd -u имя — разблокировать (unlock).">sudo passwd имя</td><td>Сменить пароль пользователя<span class="hint">-l = заблокировать, -u = разблокировать</span></td></tr>
+                <tr><td class="command tip" data-tip="/etc/sudoers — файл настроек sudo. НЕ редактируй напрямую! Используй visudo (проверяет синтаксис). Ошибка в sudoers = потеря sudo!">sudo visudo</td><td>Редактировать sudoers (безопасно!)<span class="hint">⚠️ НЕ редактируй /etc/sudoers напрямую!</span></td></tr>
+                <tr><td class="command tip" data-tip="umask 022 — новые файлы 644, папки 755. umask 077 — новые файлы 600, папки 700 (только владелец). umask показывает текущее значение.">umask 022</td><td>Маска прав для новых файлов<span class="hint">022 = rw-r--r-- для файлов</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo -u имя команда — выполнить команду от другого пользователя. sudo -i — login shell как root. sudo -s — shell как root (сохраняет окружение).">sudo -u пользователь команда</td><td>Выполнить от другого пользователя<span class="hint">sudo -i = login shell как root</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 10. Диски ==================== -->
+        <div class="section">
+            <h2>💾 Диски и файловые системы <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="lsblk — дерево блочных устройств (диски, разделы, mount points). lsblk -f — добавить файловую систему и UUID. lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT.">lsblk</td><td>Блочные устройства (диски, разделы)<span class="hint">lsblk -f = с ФС и UUID</span></td></tr>
+                <tr><td class="command tip" data-tip="df -h — человеко-читаемый вывод. df -i — использование inodes (если inodes кончились — не создать файл даже при свободном месте!).">df -hi</td><td>Место + inodes<span class="hint">inodes могут закончиться раньше места!</span></td></tr>
+                <tr><td class="command tip" data-tip="findmnt — все смонтированные файловые системы. findmnt -t ext4 — только ext4. mount | column -t — альтернативный вывод.">findmnt</td><td>Смонтированные файловые системы<span class="hint">findmnt -t ext4 = только ext4</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo mount /dev/sdb1 /mnt — примонтировать раздел. sudo umount /mnt — размонтировать. sudo mount -a — примонтировать всё из fstab.">sudo mount /dev/sdb1 /mnt</td><td>Примонтировать раздел<span class="hint">umount = размонтировать, mount -a = всё из fstab</span></td></tr>
+                <tr><td class="command tip" data-tip="/etc/fstab — таблица авто-монтирования при загрузке. Формат: UUID=xxx /mount-point ext4 defaults 0 2. Ошибка в fstab = система не загрузится!">sudo nano /etc/fstab</td><td>Авто-монтирование при загрузке<span class="hint">⚠️ Ошибка = система не загрузится!</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo fdisk -l — все диски и разделы. cfdisk / fdisk /dev/sdb — интерактивное управление разделами. gdisk — для GPT. parted — альтернатива.">sudo fdisk -l</td><td>Информация о разделах диска<span class="hint">fdisk /dev/sdb = редактирование разделов</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo mkfs.ext4 /dev/sdb1 — форматировать в ext4. mkfs.xfs, mkfs.btrfs — другие ФС. Форматирование УНИЧТОЖАЕТ все данные!">sudo mkfs.ext4 /dev/sdb1</td><td>Форматировать раздел в ext4<span class="hint">⚠️ Все данные будут уничтожены!</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo fsck /dev/sdb1 — проверить и исправить ФС. fsck -f — форсировать. fsck -n — только проверка (без исправлений). НЕ запускать на смонтированном!">sudo fsck /dev/sdb1</td><td>Проверить файловую систему<span class="hint">НЕ запускай на смонтированном разделе!</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo dd if=/dev/zero of=/dev/sdb bs=1M — забить диск нулями (удаление данных). dd if=image.iso of=/dev/sdb bs=4M — записать образ на флешку. ОЧЕНЬ ОПАСНО!">sudo dd if=образ of=/dev/sdb bs=4M</td><td>Записать образ на диск/флешку<span class="hint">⚠️ Уничтожит ВСЕ данные на целевом устройстве!</span></td></tr>
+                <tr><td class="command tip" data-tip="lsof /mnt — кто использует точку монтирования (мешает umount). fuser -mv /mnt — аналог. fuser -km /mnt — убить все процессы (осторожно!).">sudo lsof +D /путь</td><td>Кто использует папку/диск (рекурсивно)<span class="hint">+D = рекурсивно по папке, без +D = только файл</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 11. Git ==================== -->
+        <div class="section">
+            <h2>🔀 Git <span class="badge badge-dev">DEV</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="git init — инициализировать репозиторий. git init --bare — bare-репозиторий (для сервера, без working directory).">git init</td><td>Инициализировать репозиторий<span class="hint">--bare = серверный репозиторий</span></td></tr>
+                <tr><td class="command tip" data-tip="git clone URL — клонировать. git clone --depth 1 URL — shallow clone (только последний коммит, быстрее). git clone --branch имя URL — конкретная ветка.">git clone URL</td><td>Клонировать репозиторий<span class="hint">--depth 1 = только последний коммит</span></td></tr>
+                <tr><td class="command tip" data-tip="git status — изменения. git add . — все изменения. git add -p — интерактивно (по кускам/hunks). git add файл — конкретный файл.">git add -p</td><td>Добавить изменения (по кускам!)<span class="hint">-p = интерактивно, выбираешь какие ханки добавить</span></td></tr>
+                <tr><td class="command tip" data-tip="git commit -m 'сообщение' — коммит. git commit --amend — изменить последний коммит (сообщение или добавить файлы). Не amend после push!">git commit -m "сообщение"</td><td>Создать коммит<span class="hint">--amend = изменить последний коммит</span></td></tr>
+                <tr><td class="command tip" data-tip="git push — отправить. git push -u origin main — установить upstream. git push --force — форсированный push (опасно!). git push --force-with-lease — безопасный force.">git push -u origin main</td><td>Отправить + установить upstream<span class="hint">--force-with-lease безопаснее --force</span></td></tr>
+                <tr><td class="command tip" data-tip="git pull = git fetch + git merge. git pull --rebase = fetch + rebase (чистая история). git fetch — скачать без слияния. git fetch --all — все ремоуты.">git pull --rebase</td><td>Обновить с rebase (чистая история)<span class="hint">pull --rebase чище чем обычный merge</span></td></tr>
+                <tr><td class="command tip" data-tip="git log --oneline --graph --all — красивое дерево коммитов. git log --oneline -10 — последние 10. git log --author='имя' — по автору.">git log --oneline --graph --all</td><td>Красивый лог коммитов<span class="hint">--oneline=коротко, --graph=дерево, --all=все ветки</span></td></tr>
+                <tr><td class="command tip" data-tip="git diff — незакоммиченные изменения. git diff --cached — staged изменения. git diff HEAD~1 HEAD — разница между последними коммитами.">git diff</td><td>Показать изменения (не staged)<span class="hint">--cached = staged, HEAD~1..HEAD = между коммитами</span></td></tr>
+                <tr><td class="command tip" data-tip="git stash — спрятать изменения. git stash pop — вернуть и удалить из stash. git stash list — список. git stash apply — вернуть без удаления.">git stash</td><td>Временно спрятать изменения<span class="hint">stash pop = вернуть+удалить, stash apply = вернуть</span></td></tr>
+                <tr><td class="command tip" data-tip="git branch — список веток. git branch имя — создать. git checkout имя — переключиться. git checkout -b имя — создать и переключиться. git branch -d имя — удалить (безопасно).">git checkout -b имя-ветки</td><td>Создать и переключиться на ветку<span class="hint">git switch имя-ветки — новый аналог checkout</span></td></tr>
+                <tr><td class="command tip" data-tip="git merge ветка — слить ветку в текущую. git rebase ветка — переместить коммиты поверх ветки. rebase = линейная история, merge = сохраняет ветвление.">git merge ветка</td><td>Слить ветку в текущую<span class="hint">rebase = линейная история, merge = слияние</span></td></tr>
+                <tr><td class="command tip" data-tip="git reset --soft HEAD~1 — отменить коммит, изменения останутся staged. --mixed (default) — unstaged. --hard — УДАЛИТЬ изменения навсегда!">git reset --soft HEAD~1</td><td>Отменить последний коммит (сохранить изменения)<span class="hint">--hard = УДАЛИТЬ изменения навсегда!</span></td></tr>
+                <tr><td class="command tip" data-tip="git revert коммит — создать НОВЫЙ коммит, отменяющий изменения старого коммита. Безопасно для shared-репозиториев (в отличие от reset --hard).">git revert коммит</td><td>Отменить коммит (безопасно!)<span class="hint">Создаёт новый коммит — безопасно для общих реп</span></td></tr>
+                <tr><td class="command tip" data-tip="git blame файл — показать кто и когда менял каждую строку. git blame -L 10,20 файл — строки 10-20. git blame -w — игнорировать пробелы.">git blame файл</td><td>Кто менял каждую строку<span class="hint">-L 10,20 = строки 10-20, -w = игнорировать пробелы</span></td></tr>
+                <tr><td class="command tip" data-tip=".gitignore — файлы/папки которые git НЕ будет отслеживать. *.log, node_modules/, .env, __pycache__/, *.pyc. git rm --cached файл — убрать из отслеживания.">.gitignore</td><td>Игнорировать файлы<span class="hint">*.log, .env, node_modules/, __pycache__/</span></td></tr>
+                <tr><td class="command tip" data-tip="git merge создаёт merge commit. Если конфликт: git status покажет конфликтующие файлы, исправь их, git add, git commit. git merge --abort — отменить слияние. git mergetool — визуальный diff.">git merge ветка</td><td>Разрешение merge конфликта<span class="hint">Исправь файлы → git add → git commit</span></td></tr>
+                <tr><td class="command tip" data-tip="git rebase -i HEAD~3 — переписать 3 последних коммита: squash (объединить), reword (изменить сообщение), edit (разделить), drop (удалить), pick. Не rebase push-нутые коммиты!">git rebase -i HEAD~3</td><td>Интерактивный rebase (переписывание истории)<span class="hint">squash, reword, edit, drop — НЕ для shared веток!</span></td></tr>
+                <tr><td class="command tip" data-tip="git cherry-pick коммит — применить конкретный коммит из другой ветки. Полезно для hotfix: git cherry-pick -x abc123 (добавляет ссылку на оригинал).">git cherry-pick abc123</td><td>Применить коммит из другой ветки<span class="hint">Хорошо для hotfix — перенос фикса без merge</span></td></tr>
+                <tr><td class="command tip" data-tip="git reflog — история ВСЕХ действий (включая reset, rebase). Можно восстановить 'потерянные' коммиты: git checkout HEAD@{2}. Reflog хранится 90 дней.">git reflog</td><td>История всех действий (страховка)<span class="hint">Поможет после ошибочного reset --hard!</span></td></tr>
+                <tr><td class="command tip" data-tip="Git hooks — скрипты в .git/hooks/: pre-commit (перед коммитом), pre-push (перед push). pre-commit — проверка линтером, тестами. chmod +x .git/hooks/pre-commit для активации.">.git/hooks/pre-commit</td><td>Git hooks (автоматизация перед коммитом/push)<span class="hint">Можно авто-запускать линтер, тесты, форматтер</span></td></tr>
+                <tr><td class="command tip" data-tip="git submodule add URL папка — добавить подмодуль. git clone --recurse-submodules URL — клонировать с подмодулями. git submodule update --init — подтянуть подмодули. git submodule update --remote — обновить.">git submodule add URL</td><td>Подмодули (репозиторий внутри репозитория)<span class="hint">clone --recurse-submodules = всё сразу</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 12. Nginx ==================== -->
+        <div class="section">
+            <h2>🌐 Nginx (веб-сервер) <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="sudo nginx -t — проверить синтаксис конфига БЕЗ перезагрузки. ВСЕГДА делай перед reload! Показывает файл и строку с ошибкой.">sudo nginx -t</td><td>Проверить конфиг Nginx<span class="hint">⚠️ Всегда перед reload/restart!</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo nginx -s reload — перечитать конфиг без остановки. sudo systemctl reload nginx — аналог через systemd. Не разорвёт активные соединения!">sudo nginx -s reload</td><td>Перезагрузить конфиг (без остановки)<span class="hint">Не рвёт активные соединения!</span></td></tr>
+                <tr><td class="command tip" data-tip="/etc/nginx/nginx.conf — главный конфиг. /etc/nginx/sites-available/ — доступные сайты. /etc/nginx/sites-enabled/ — включенные (symlink).">/etc/nginx/nginx.conf</td><td>Главный конфиг Nginx<span class="hint">sites-available/ → sites-enabled/ через symlink</span></td></tr>
+                <tr><td class="command tip" data-tip="server { listen 80; server_name example.com; root /var/www/html; location / { try_files $uri $uri/ =404; } } — минимальный конфиг для статического сайта.">server_name example.com</td><td>Блок server (виртуальный хост)<span class="hint">listen 80/443, server_name = домен, root = путь</span></td></tr>
+                <tr><td class="command tip" data-tip="location /api/ { proxy_pass http://localhost:3000; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; } — проксирование на бэкенд.">proxy_pass http://localhost:3000</td><td>Проксирование на бэкенд<span class="hint">Не забудь proxy_set_header Host $host!</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo ln -s /etc/nginx/sites-available/site /etc/nginx/sites-enabled/ — включить сайт. sudo rm /etc/nginx/sites-enabled/site — выключить. Потом nginx -t + reload.">sudo ln -s sites-available/ sites-enabled/</td><td>Включить/выключить сайт<span class="hint">После: nginx -t && nginx -s reload</span></td></tr>
+                <tr><td class="command tip" data-tip="return 301 https://$host$request_uri; — редирект HTTP → HTTPS. В server { listen 80; } блоке.$request_uri = полный URI с query string.">return 301 https://$host$request_uri;</td><td>Редирект HTTP → HTTPS<span class="hint">В блоке listen 80 для принудительного HTTPS</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo certbot --nginx -d example.com — получить и настроить SSL сертификат Let's Encrypt автоматически. certbot renew — обновить (в крон).">sudo certbot --nginx -d домен</td><td>SSL сертификат (Let's Encrypt)<span class="hint">certbot renew = обновление (добавь в cron!)</span></td></tr>
+                <tr><td class="command tip" data-tip="gzip on; gzip_types text/plain application/json application/javascript text/css; — включить сжатие. Ускоряет загрузку в 3-5 раз для текстовых файлов.">gzip on;</td><td>Включить gzip сжатие<span class="hint">Ускоряет загрузку в 3-5 раз для текста!</span></td></tr>
+                <tr><td class="command tip" data-tip="access_log /var/log/nginx/access.log; error_log /var/log/nginx/error.log; — пути к логам. Можно указать уровень: error_log ... warn; (debug, info, notice, warn, error, crit).">access_log /var/log/nginx/access.log</td><td>Логи Nginx<span class="hint">Уровни: debug, info, notice, warn, error, crit</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 13. Docker ==================== -->
+        <div class="section">
+            <h2>🐳 Docker <span class="badge badge-dev">DEV</span> <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="docker ps — запущенные. docker ps -a — все (включая остановленные). docker ps --format '{{.Names}}\t{{.Status}}' — кастомный вывод.">docker ps -a</td><td>Все контейнеры (включая stopped)<span class="hint">-a = все, --format = кастомный вывод</span></td></tr>
+                <tr><td class="command tip" data-tip="docker images — локальные образы. docker images -a — включая intermediate. docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}'.">docker images</td><td>Локальные образы<span class="hint">--format = кастомный формат вывода</span></td></tr>
+                <tr><td class="command tip" data-tip="docker pull nginx:alpine — конкретный тег. alpine — минимальный образ (~5MB). latest — по умолчанию. :latest на PROD — плохо, фиксируй версию!">docker pull образ:тег</td><td>Скачать образ (конкретный тег)<span class="hint">Фиксируй версию! :latest на PROD = плохо</span></td></tr>
+                <tr><td class="command tip" data-tip="docker run -d --name имя -p 8080:80 -v /host:/container -e ENV=value --restart unless-stopped образ. -d=фон, -p=порт, -v=volume, -e=env, --restart=автозапуск.">docker run -d --name имя -p 80:80 -v /host:/cont образ</td><td>Запустить контейнер (полный набор)<span class="hint">-d=фон, -p=порт, -v=volume, -e=env, --restart=автозапуск</span></td></tr>
+                <tr><td class="command tip" data-tip="docker exec -it контейнер sh — зайти (alpine). docker exec -it контейнер bash — зайти (ubuntu/debian). docker exec контейнер команда — выполнить без входа.">docker exec -it контейнер sh</td><td>Зайти внутрь контейнера<span class="hint">sh для alpine, bash для ubuntu/debian</span></td></tr>
+                <tr><td class="command tip" data-tip="docker logs контейнер — все логи. docker logs -f контейнер — следить. docker logs --tail 100 контейнер — последние 100 строк. docker logs --since 1h контейнер — за час.">docker logs -f --tail 100 контейнер</td><td>Логи контейнера (последние 100 строк)<span class="hint">-f=следить, --tail=N=последние N, --since=время</span></td></tr>
+                <tr><td class="command tip" data-tip="docker stop контейнер — graceful (SIGTERM → SIGKILL через 10с). docker kill контейнер — сразу SIGKILL. docker stop -t 30 контейнер — ждать 30с.">docker stop контейнер</td><td>Остановить контейнер (graceful)<span class="hint">docker kill = мгновенно (SIGKILL)</span></td></tr>
+                <tr><td class="command tip" data-tip="docker rm контейнер — удалить stopped. docker rm -f контейнер — удалить running. docker rmi образ — удалить образ. docker system prune -a — удалить ВСЁ неиспользуемое.">docker rm -f $(docker ps -aq)</td><td>Удалить ВСЕ контейнеры<span class="hint">$(docker ps -aq) = список всех ID</span></td></tr>
+                <tr><td class="command tip" data-tip="docker-compose up -d — запустить в фоне. docker-compose down — остановить и удалить контейнеры/сети. docker-compose down -v — + volumes. docker-compose logs -f — логи.">docker-compose up -d</td><td>Compose: запуск в фоне<span class="hint">down -v = удалить и volumes тоже!</span></td></tr>
+                <tr><td class="command tip" data-tip="docker-compose ps — статус сервисов. docker-compose build — пересобрать. docker-compose restart — перезапустить. docker-compose exec сервис sh — зайти в сервис.">docker-compose exec сервис sh</td><td>Compose: зайти в сервис<span class="hint">docker-compose logs -f сервис = логи сервиса</span></td></tr>
+                <tr><td class="command tip" data-tip="docker build -t имя:тег . — собрать из Dockerfile в текущей папке. docker build --no-cache -t имя:тег . — без кэша. docker build -f Dockerfile.prod -t имя . — другой Dockerfile.">docker build -t имя:тег .</td><td>Собрать образ из Dockerfile<span class="hint">--no-cache = без кэша, -f = другой файл</span></td></tr>
+                <tr><td class="command tip" data-tip="docker system df — использование места. docker system prune — удалить unused. docker system prune -a --volumes — удалить ВСЁ (включая unused образы и volumes).">docker system df</td><td>Использование места Docker<span class="hint">prune -a --volumes = удалить ВСЁ неиспользуемое</span></td></tr>
+                <tr><td class="command tip" data-tip="docker cp контейнер:/путь /локальный — из контейнера. docker cp /локальный контейнер:/путь — в контейнер. Альтернатива: volumes.">docker cp контейнер:/путь ./</td><td>Копировать файлы из/в контейнер<span class="hint">Лучше используй volumes для постоянного хранения</span></td></tr>
+                <tr><td class="command tip" data-tip="Dockerfile: FROM образ — база. WORKDIR /app — рабочая директория. COPY . . — скопировать. RUN команда — выполнить при сборке. CMD ['команда'] — команда при запуске. EXPOSE порт.">Dockerfile</td><td>Основные инструкции Dockerfile<span class="hint">FROM, WORKDIR, COPY, RUN, CMD, EXPOSE, ENV</span></td></tr>
+                <tr><td class="command tip" data-tip="Multi-stage: FROM image AS builder — промежуточный образ для сборки. FROM alpine:latest — финальный лёгкий образ. COPY --from=builder /app/binary /app/. Итоговый образ — только бинарник (без компилятора!).">Dockerfile (multi-stage)</td><td>Multi-stage build (маленький финальный образ)<span class="hint">Собираем в builder, копируем бинарник в чистый образ</span></td></tr>
+                <tr><td class="command tip" data-tip=".dockerignore — исключает файлы из контекста сборки. Пример: node_modules/, .git, *.log, .env, __pycache__/. Ускоряет build и уменьшает размер.">.dockerignore</td><td>Игнорировать файлы при сборке<span class="hint">node_modules/, .git, .env — не попадут в образ</span></td></tr>
+                <tr><td class="command tip" data-tip="docker network create mynet — создать сеть. docker run --network mynet — подключить к сети. Контейнеры в одной сети видят друг друга по имени. bridge — изолированная сеть по умолчанию. host — без изоляции.">docker network create mynet</td><td>Создать сеть для контейнеров<span class="hint">Контейнеры в одной сети видят друг друга по имени</span></td></tr>
+                <tr><td class="command tip" data-tip="docker volume create myvol — создать именованный volume (сохраняется при rm контейнера). docker run -v myvol:/data — подключить. docker volume prune — удалить неиспользуемые volumes. bind mount: -v /host/path:/container/path.">docker volume create myvol</td><td>Именованный volume (сохраняет данные)<span class="hint">volumes живут даже после docker rm контейнера</span></td></tr>
+                <tr><td class="command tip" data-tip="docker run --restart=always — автоперезапуск при крахе/перезагрузке unless-stopped — перезапускается всегда, кроме ручной остановки on-failure:5 — до 5 попыток при крахе">docker run --restart=unless-stopped</td><td>Политика перезапуска контейнера<span class="hint">always vs unless-stopped vs on-failure:N</span></td></tr>
+                <tr><td class="command tip" data-tip="docker run --health-cmd='curl -f http://localhost || exit 1' --health-interval=30s --health-retries=3 — проверка здоровья. docker inspect --format='{{json .State.Health}}' контейнер — статус.">docker run --health-cmd</td><td>Healthcheck (проверка здоровья контейнера)<span class="hint">Добавляй в Dockerfile: HEALTHCHECK CMD ...</span></td></tr>
+                <tr><td class="command tip" data-tip="docker system prune — удалить остановленные контейнеры, неиспользуемые сети, build cache. docker container prune — только контейнеры. docker image prune — только образы без тегов. docker volume prune — только volumes. docker system prune -a — всё.">docker system prune</td><td>Очистка неиспользуемых ресурсов Docker<span class="hint">prune -a = ещё и образы без контейнеров</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 14. Python ==================== -->
+        <div class="section">
+            <h2>🐍 Python <span class="badge badge-dev">DEV</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="python3 --version — версия. which python3 — путь. update-alternatives --config python3 — выбрать версию. python3 -m venv venv — создать venv.">python3 --version</td><td>Проверить версию Python<span class="hint">which python3 = путь к интерпретатору</span></td></tr>
+                <tr><td class="command tip" data-tip="python3 -m venv venv — создать окружение в папке venv. python3 -m venv --system-site-packages venv — с доступом к глобальным пакетам.">python3 -m venv venv</td><td>Создать виртуальное окружение<span class="hint">--system-site-packages = доступ к глобальным пакетам</span></td></tr>
+                <tr><td class="command tip" data-tip="source venv/bin/activate — активировать (bash/zsh). . venv/bin/activate — сокращение. deactivate — деактивировать. В Windows: venv\Scripts\activate.bat.">source venv/bin/activate</td><td>Активировать venv<span class="hint">. venv/bin/activate = то же самое (сокращение)</span></td></tr>
+                <tr><td class="command tip" data-tip="pip install flask — установить. pip install flask==2.3.0 — конкретная версия. pip install -e . — editable install (для разработки пакета). pip install --upgrade pip — обновить pip.">pip install пакет==версия</td><td>Установить конкретную версию<span class="hint">-e . = editable mode (dev mode)</span></td></tr>
+                <tr><td class="command tip" data-tip="pip freeze > requirements.txt — экспорт. pip install -r requirements.txt — установка. pip list — все пакеты. pip list --outdated — какие можно обновить.">pip freeze > requirements.txt</td><td>Экспорт зависимостей<span class="hint">pip list --outdated = проверить обновления</span></td></tr>
+                <tr><td class="command tip" data-tip="pipenv install flask — установить через Pipfile. pipenv shell — войти в shell. pipenv run python скрипт.py — запустить без входа. Pipfile.lock — фиксированные версии.">pipenv install пакет</td><td>Pipenv (альтернатива venv+pip)<span class="hint">Pipfile.lock = фиксированные версии</span></td></tr>
+                <tr><td class="command tip" data-tip="poetry init — создать pyproject.toml. poetry add flask — добавить зависимость. poetry install — установить все. poetry run python скрипт.py — запустить. poetry build — собрать пакет.">poetry add пакет</td><td>Poetry (менеджер пакетов + сборка)<span class="hint">pyproject.toml = современный стандарт</span></td></tr>
+                <tr><td class="command tip" data-tip="python3 -m http.server 8000 — простой HTTP сервер (для тестов/обмена файлами). python3 -m http.server 8000 --directory /путь — указать папку. НЕ для PROD!">python3 -m http.server 8000</td><td>Простой HTTP сервер<span class="hint">⚠️ ТОЛЬКО для тестов, НЕ для production!</span></td></tr>
+                <tr><td class="command tip" data-tip="python3 -c 'import sys; print(sys.path)' — пути поиска модулей. PYTHONPATH=/путь python3 скрипт.py — добавить путь. sys.path.insert(0, '/путь') — в скрипте.">python3 -c "import модуль"</td><td>Проверить импорт модуля<span class="hint">-c = выполнить строку кода</span></td></tr>
+                <tr><td class="command tip" data-tip="gunicorn app:app -w 4 -b 0.0.0.0:8000 — WSGI сервер для Flask/FastAPI. -w = workers (2*CPU+1). uvicorn для FastAPI. НЕ используй flask run на PROD!">gunicorn app:app -w 4 -b 0.0.0.0:8000</td><td>WSGI сервер для Flask (production)<span class="hint">-w workers = 2*CPU+1, НЕ flask run!</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 15. Node.js ==================== -->
+        <div class="section">
+            <h2>🟢 Node.js / npm <span class="badge badge-dev">DEV</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="node -v — версия Node.js. npm -v — версия npm. npx --version — версия npx. nvm list — установленные версии Node. nvm install 20 — установить Node 20.">node -v</td><td>Версии Node.js и npm<span class="hint">nvm install 20 = установить Node 20</span></td></tr>
+                <tr><td class="command tip" data-tip="npm init -y — создать package.json (default). npm init — интерактивно. npm init vue@latest — создать Vue проект. npm create vite@latest — Vite проект.">npm init -y</td><td>Создать package.json<span class="hint">-y = использовать значения по умолчанию</span></td></tr>
+                <tr><td class="command tip" data-tip="npm install — установить все из package.json. npm install пакет — добавить зависимость. npm install --save-dev пакет — dev зависимость. npm ci — чистая установка (для CI/CD).">npm install пакет</td><td>Установить пакет<span class="hint">--save-dev = только для разработки</span></td></tr>
+                <tr><td class="command tip" data-tip="npm run build — запустить скрипт build из package.json. npm start — запустить start. npm run — список всех скриптов. npm test — запустить тесты.">npm run скрипт</td><td>Запустить npm скрипт<span class="hint">npm run = список всех доступных скриптов</span></td></tr>
+                <tr><td class="command tip" data-tip="npx команда — запустить пакет без установки. npx create-react-app имя — создать React проект. npx tsc — TypeScript компилятор. npx jest — запустить тесты.">npx пакет</td><td>Запустить пакет без установки<span class="hint">Скачивает временно, запускает, удаляет</span></td></tr>
+                <tr><td class="command tip" data-tip="pm2 start app.js — запустить через PM2. pm2 list — статус. pm2 logs — логи. pm2 restart имя — перезапустить. pm2 stop имя — остановить. pm2 delete имя — удалить. pm2 startup — автозапуск при boot.">pm2 start app.js --name "app"</td><td>PM2: запуск Node.js приложения<span class="hint">pm2 startup = автозапуск при загрузке системы</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 16. Базы данных ==================== -->
+        <div class="section">
+            <h2>🗄️ Базы данных <span class="badge badge-db">DB</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="sudo systemctl status postgresql — статус. sudo -u postgres psql — войти как postgres. psql -U user -d dbname — подключиться. \l — список БД, \dt — таблицы, \q — выход.">sudo -u postgres psql</td><td>PostgreSQL: подключение<span class="hint">\l = базы, \dt = таблицы, \q = выход</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo -u postgres createuser имя — создать роль. sudo -u postgres createdb dbname — создать БД. sudo -u postgres dropdb dbname — удалить БД.">sudo -u postgres createdb dbname</td><td>PostgreSQL: создать БД<span class="hint">createuser = создать роль, dropdb = удалить</span></td></tr>
+                <tr><td class="command tip" data-tip="pg_dump dbname > backup.sql — дамп БД. pg_dump -Fc dbname > backup.dump — кастомный формат (сжатый). pg_restore -d dbname backup.dump — восстановить.">pg_dump dbname > backup.sql</td><td>PostgreSQL: бэкап базы<span class="hint">-Fc = кастомный формат (сжатый, лучше)</span></td></tr>
+                <tr><td class="command tip" data-tip="mysqldump -u root -p dbname > backup.sql — дамп MySQL. mysql -u root -p dbname < backup.sql — восстановить. mysql -u root -p — подключиться.">mysqldump -u root -p dbname > backup.sql</td><td>MySQL: бэкап базы<span class="hint">mysql < backup.sql = восстановить</span></td></tr>
+                <tr><td class="command tip" data-tip="redis-cli — подключиться к Redis. redis-cli ping → PONG. redis-cli SET ключ значение. redis-cli GET ключ. redis-cli KEYS '*' — все ключи. redis-cli FLUSHALL — удалить ВСЕ данные.">redis-cli</td><td>Redis CLI<span class="hint">FLUSHALL = УДАЛИТЬ ВСЕ ДАННЫЕ!</span></td></tr>
+                <tr><td class="command tip" data-tip="mongosh — MongoDB shell. mongosh mongodb://user:pass@host:27017/db — подключение. use dbname — переключить БД. show dbs — список БД. show collections — коллекции.">mongosh</td><td>MongoDB shell<span class="hint">use dbname, show dbs, show collections</span></td></tr>
+                <tr><td class="command tip" data-tip="sqlite3 database.db — открыть/создать БД. .tables — список таблиц. .schema таблица — схема. .dump — полный дамп. .exit — выход. SELECT * FROM table; — запрос.">sqlite3 database.db</td><td>SQLite CLI<span class="hint">.tables = таблицы, .schema = схема, .dump = дамп</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 17. Kubernetes ==================== -->
+        <div class="section">
+            <h2>☸️ Kubernetes <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="kubectl get pods — поды в текущем namespace. kubectl get pods -A — все namespaces. kubectl get pods -o wide — больше инфо (node, IP). kubectl get pods --watch — следить.">kubectl get pods -A</td><td>Все поды (все namespace)<span class="hint">-o wide = больше инфо, --watch = следить</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl get services / kubectl get svc — сервисы. kubectl get deployments — деплойменты. kubectl get ingress — ingress правила. kubectl get nodes — ноды кластера.">kubectl get deployments</td><td>Деплойменты<span class="hint">get svc = сервисы, get nodes = ноды</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl describe pod имя — детальная информация (события, ошибки). kubectl describe node имя — инфо о ноде. kubectl describe svc имя — инфо о сервисе.">kubectl describe pod имя</td><td>Детали пода (события, ошибки)<span class="hint">Смотри Events внизу вывода!</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl logs pod-name — логи. kubectl logs -f pod-name — следить. kubectl logs pod-name -c контейнер — конкретный контейнер в поде. kubectl logs --tail 100 pod-name — последние 100 строк.">kubectl logs -f pod-name</td><td>Логи пода (в реальном времени)<span class="hint">-c контейнер = конкретный контейнер в поде</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl exec -it pod-name -- sh — зайти в под. kubectl exec -it pod-name -- bash — если есть bash. kubectl exec pod-name -- команда — выполнить без входа.">kubectl exec -it pod-name -- sh</td><td>Зайти в под<span class="hint">sh = alpine, bash = ubuntu/debian</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl apply -f файл.yaml — применить конфигурацию. kubectl apply -f папка/ — все yaml в папке. kubectl delete -f файл.yaml — удалить. kubectl create -f файл.yaml — создать.">kubectl apply -f файл.yaml</td><td>Применить YAML конфигурацию<span class="hint">apply = создать/обновить, delete = удалить</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl rollout status deploy/имя — статус деплоя. kubectl rollout history deploy/имя — история. kubectl rollout undo deploy/имя — откатить. kubectl rollout restart deploy/имя — перезапустить.">kubectl rollout restart deploy/имя</td><td>Перезапустить deployment<span class="hint">rollout undo = откатить к предыдущей версии</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl scale deploy/имя --replicas=3 — масштабировать. kubectl autoscale deploy/имя --min=2 --max=10 --cpu-percent=80 — HPA (автомасштабирование).">kubectl scale deploy/имя --replicas=3</td><td>Масштабировать deployment<span class="hint">autoscale = автомасштабирование по CPU</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl cp pod-name:/путь ./локальный — из пода. kubectl cp ./локальный pod-name:/путь — в под. kubectl port-forward svc/имя 8080:80 — проброс порта.">kubectl port-forward svc/имя 8080:80</td><td>Проброс порта к сервису<span class="hint">Доступ к сервису через localhost:8080</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl get events --sort-by='.lastTimestamp' — события кластера по времени. kubectl get events -n namespace — события namespace. Полезно для отладки!">kubectl get events --sort-by='.lastTimestamp'</td><td>События кластера (debug)<span class="hint">Полезно когда под не запускается!</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 18. Ansible ==================== -->
+        <div class="section">
+            <h2>🤖 Ansible <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="ansible-playbook playbook.yml — запустить playbook. ansible-playbook playbook.yml -i inventory — свой inventory. ansible-playbook playbook.yml --check — dry-run. ansible-playbook playbook.yml --diff — показать изменения.">ansible-playbook playbook.yml</td><td>Запустить Ansible playbook<span class="hint">--check = dry-run, --diff = показать изменения</span></td></tr>
+                <tr><td class="command tip" data-tip="ansible all -m ping — проверить связь со всеми хостами. ansible all -m setup — собрать факты. ansible group -a 'команда' — выполнить команду на группе.">ansible all -m ping</td><td>Проверить связь (ping)<span class="hint">-m setup = собрать все факты о хостах</span></td></tr>
+                <tr><td class="command tip" data-tip="ansible all -m shell -a 'apt update' — выполнить shell команду. ansible all -m apt -a 'name=nginx state=present' — модуль apt. ansible all -m copy -a 'src=файл dest=/путь' — копировать.">ansible all -a "uptime"</td><td>Выполнить команду на всех хостах<span class="hint">-m shell = shell, -m apt = пакетный менеджер</span></td></tr>
+                <tr><td class="command tip" data-tip="ansible-vault encrypt файл.yml — зашифровать. ansible-vault decrypt файл.yml — расшифровать. ansible-vault edit файл.yml — редактировать. ansible-playbook -i inventory --vault-password-file файл playbook.yml — запустить с vault.">ansible-vault encrypt файл.yml</td><td>Шифрование секретов (Vault)<span class="hint">--vault-password-file = файл с паролем</span></td></tr>
+                <tr><td class="command tip" data-tip="ansible-playbook playbook.yml --limit группа — запустить только для группы. --tags "nginx,ssl" — только теги. --skip-tags "debug" — пропустить теги. -vvv = подробный вывод.">ansible-playbook playbook.yml -vvv</td><td>Подробный вывод (debug)<span class="hint">-vvv = максимум деталей для отладки</span></td></tr>
+                <tr><td class="command tip" data-tip="inventory: [webservers] → host1 host2. [dbservers] → db1. [all:vars] → ansible_user=root ansible_ssh_private_key_file=~/.ssh/key. Можно YAML формат.">inventory</td><td>Inventory файл (хосты и группы)<span class="hint">Можно INI или YAML формат</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 19. CI/CD и деплой ==================== -->
+        <div class="section">
+            <h2>🚀 CI/CD и Деплой <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="scp deploy.tar.gz user@server:/tmp/ && ssh user@server 'tar xzf /tmp/deploy.tar.gz -C /var/www/app && systemctl restart app' — типичный деплой скрипт.">scp + ssh deploy</td><td>Простой деплой через SSH<span class="hint">scp → распаковка → restart сервиса</span></td></tr>
+                <tr><td class="command tip" data-tip="rsync -avz --delete --exclude='.git' --exclude='node_modules' ./ user@server:/var/www/app/ — синхронизация с удалением лишних файлов. --exclude исключить папки.">rsync -avz --delete ./ user@server:/path/</td><td>Деплой через rsync (синхронизация)<span class="hint">--delete = удалить на сервере то, чего нет локально</span></td></tr>
+                <tr><td class="command tip" data-tip="docker build -t registry/app:tag . && docker push registry/app:tag — собрать и отправить в registry. На сервере: docker pull registry/app:tag && docker-compose up -d.">docker push registry/образ:тег</td><td>Push образа в Docker registry<span class="hint">Используй Docker Hub, GHCR, GitLab Registry</span></td></tr>
+                <tr><td class="command tip" data-tip="kubectl set image deploy/имя контейнер=образ:новый-тег — обновить образ. kubectl rollout status deploy/имя — ждать завершения. kubectl rollout undo deploy/имя — откат.">kubectl set image deploy/имя контейнер=образ:v2</td><td>K8s: обновить образ в deployment<span class="hint">rollout undo = быстрый откат</span></td></tr>
+                <tr><td class="command tip" data-tip="helm install имя ./chart — установить. helm upgrade имя ./chart — обновить. helm rollback имя 1 — откатить к ревизии 1. helm list — список. helm status имя — статус.">helm upgrade имя ./chart</td><td>Helm: обновить релиз<span class="hint">rollback имя 1 = откат к ревизии 1</span></td></tr>
+                <tr><td class="command tip" data-tip="terraform init — инициализация. terraform plan — показать изменения. terraform apply — применить. terraform apply -auto-approve — без подтверждения. terraform destroy — удалить всё.">terraform plan && terraform apply</td><td>Terraform: план + применение<span class="hint">Всегда plan перед apply!</span></td></tr>
+                <tr><td class="command tip" data-tip="make build — собрать. make test — тесты. make deploy — деплой. Makefile стандартизирует процесс. phony: build test deploy — цели не файлы.">make deploy</td><td>Makefile: стандартизация команд<span class="hint">make help = список доступных команд</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 20. Мониторинг ==================== -->
+        <div class="section">
+            <h2>📊 Мониторинг и алертинг <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="vmstat 2 — статистика каждые 2 сек: procs, memory, swap, io, system, cpu. iostat 2 — I/O статистика. mpstat — CPU по ядрам.">vmstat 2</td><td>Системная статистика (каждые 2с)<span class="hint">iostat 2 = дисковый I/O, mpstat = CPU по ядрам</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo iotop — мониторинг I/O по процессам (требует sudo!). nethogs — сетевой трафик по процессам. iftop — сетевой трафик по соединениям. bmon — bandwidth monitor.">iotop</td><td>Мониторинг I/O по процессам<span class="hint">nethogs = сеть по процессам, iftop = по соединениям</span></td></tr>
+                <tr><td class="command tip" data-tip="docker stats — статистика контейнеров (CPU, RAM, сеть, диск). docker stats --no-stream — один раз (не continuously). docker stats --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}'.">docker stats</td><td>Статистика контейнеров в реальном времени<span class="hint">--no-stream = один снимок</span></td></tr>
+                <tr><td class="command tip" data-tip="curl http://localhost:9090/metrics — Prometheus метрики. curl http://localhost:3000/api/health — health check. wget -qO- http://localhost:80/health — health check.">curl localhost:9090/metrics</td><td>Проверить health/metrics endpoint<span class="hint">Используй в мониторинге и алертинге</span></td></tr>
+                <tr><td class="command tip" data-tip="crontab -l — список задач. crontab -e — редактировать. Формат: минута час день месяц день-недели команда. */5 * * * * = каждые 5 мин. 0 3 * * * = каждый день в 3:00.">crontab -e</td><td>Редактировать Cron задачи<span class="hint">*/5 * * * * = каждые 5 минут</span></td></tr>
+                <tr><td class="command tip" data-tip="systemctl status cron — статус cron. journalctl -u cron — логи cron. grep CRON /var/log/syslog — альтернативный просмотр логов cron.">systemctl status cron</td><td>Статус Cron сервиса<span class="hint">journalctl -u cron = логи cron</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 21. Редакторы ==================== -->
+        <div class="section">
+            <h2>✏️ Текстовые редакторы <span class="badge badge-dev">DEV</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="nano файл — простой редактор. Ctrl+O = сохранить, Ctrl+X = выйти, Ctrl+W = поиск, Ctrl+K = вырезать строку, Ctrl+U = вставить. Ctrl+G = помощь.">nano файл</td><td>Простой редактор (для новичков)<span class="hint">Ctrl+O=сохранить, Ctrl+X=выйти, Ctrl+W=поиск</span></td></tr>
+                <tr><td class="command tip" data-tip="vim файл — мощный редактор. i = вставка, Esc = нормальный режим. :w = сохранить, :q = выйти, :wq = сохранить+выйти, :q! = выйти без сохранения.">vim файл</td><td>Vim (мощный редактор)<span class="hint">i=вставка, Esc=норм.режим, :wq=сохранить+выйти</span></td></tr>
+                <tr><td class="command tip" data-tip="sed 's/старое/новое/g' файл — замена текста. sed -i 's/старое/новое/g' файл — замена inplace (в файле). sed -n '10,20p' файл — строки 10-20.">sed -i 's/старое/новое/g' файл</td><td>sed: замена текста в файле<span class="hint">-i = заменить в файле (inplace)</span></td></tr>
+                <tr><td class="command tip" data-tip="awk '{print $1}' файл — вывести первое поле. awk -F: '{print $1}' /etc/passwd — разделитель :. awk '{sum+=$1} END {print sum}' — сумма колонки.">awk '{print $1}' файл</td><td>awk: обработка текста по полям<span class="hint">-F: = разделитель :, END = после обработки</span></td></tr>
+                <tr><td class="command tip" data-tip="sort файл — сортировка строк. sort -n файл — числовая. sort -r файл — обратная. uniq файл — убрать дубликаты (нужен sorted input). sort файл | uniq -c — посчитать дубли.">sort файл | uniq -c</td><td>Сортировка + подсчёт дубликатов<span class="hint">uniq работает только после sort!</span></td></tr>
+                <tr><td class="command tip" data-tip="wc -l файл — строки. wc -w файл — слова. wc -c файл — байты. wc -m файл — символы. cat файл | wc -l — посчитать строки вывода.">wc -l файл</td><td>Посчитать строки/слова/байты<span class="hint">-l=строки, -w=слова, -c=байты</span></td></tr>
+                <tr><td class="command tip" data-tip="head -20 файл — первые 20 строк. tail -20 файл — последние 20. tail -f файл — следить. head -n -5 файл — всё кроме последних 5 строк.">head -20 файл</td><td>Первые строки файла<span class="hint">tail -f = следить в реальном времени</span></td></tr>
+                <tr><td class="command tip" data-tip="cut -d: -f1 файл — первое поле с разделителем :. cut -c1-10 файл — символы 1-10. cut -f2,3 файл — поля 2 и 3 (tab разделитель).">cut -d: -f1 /etc/passwd</td><td>Вырезать колонки из текста<span class="hint">-d=разделитель, -f=поля</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 22. Переменные и окружение ==================== -->
+        <div class="section">
+            <h2>🔧 Переменные окружения <span class="badge badge-dev">DEV</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="env — все переменные окружения. printenv — аналог. printenv PATH — конкретная переменная. echo $HOME — вывод переменной. env | grep PATH — поиск.">env | grep переменная</td><td>Найти переменную окружения<span class="hint">printenv PATH = конкретная переменная</span></td></tr>
+                <tr><td class="command tip" data-tip="export ИМЯ=значение — установить переменную (текущая сессия). export PATH=$PATH:/новый/путь — добавить в PATH. export — без аргументов = список export-переменных.">export ИМЯ=значение</td><td>Установить переменную (сессия)<span class="hint">export PATH=$PATH:/путь — добавить в PATH</span></td></tr>
+                <tr><td class="command tip" data-tip="~/.bashrc — выполняется при каждом открытии терминала. ~/.bash_profile или ~/.profile — при login shell. source ~/.bashrc — перечитать без перезапуска.">source ~/.bashrc</td><td>Перечитать ~/.bashrc<span class="hint">.bashrc = каждый терминал, .profile = login shell</span></td></tr>
+                <tr><td class="command tip" data-tip="/etc/environment — системные переменные (для всех пользователей). /etc/profile.d/*.sh — скрипты при login. systemctl set-environment — для systemd сервисов.">/etc/environment</td><td>Системные переменные (все пользователи)<span class="hint">systemctl set-environment = для сервисов</span></td></tr>
+                <tr><td class="command tip" data-tip="alias ll='ls -la' — создать алиас. alias — список алиасов. unalias ll — удалить. Алиасы в ~/.bashrc для постоянного хранения.">alias ll='ls -la'</td><td>Создать алиас (сокращение команды)<span class="hint">Добавь в ~/.bashrc для постоянного хранения</span></td></tr>
+                <tr><td class="command tip" data-tip="$? — код выхода последней команды (0 = успех, !=0 = ошибка). $_ — последний аргумент предыдущей команды. $! — PID последнего фонового процесса.">echo $?</td><td>Код выхода последней команды<span class="hint">0 = успех, 1+ = ошибка</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 23. Полезные утилиты ==================== -->
+        <div class="section">
+            <h2>🛠️ Полезные утилиты <span class="badge badge-dev">DEV</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="xargs передаёт вывод как аргументы: find . -name '*.log' | xargs rm. find . -name '*.log' -print0 | xargs -0 rm — для файлов с пробелами в имени.">find . -name "*.log" | xargs rm</td><td>Передать вывод как аргументы<span class="hint">-print0 | xargs -0 = для файлов с пробелами</span></td></tr>
+                <tr><td class="command tip" data-tip="tee файл — вывод + запись в файл. echo 'hello' | tee файл. tee -a файл — добавить (append). useful: команда | tee лог.txt — и вывод, и лог.">команда | tee лог.txt</td><td>Вывод + запись в файл<span class="hint">-a = добавить (append), без -a = перезаписать</span></td></tr>
+                <tr><td class="command tip" data-tip="date — текущая дата/время. date '+%Y-%m-%d_%H-%M-%S' — форматированная. date -d 'yesterday' — вчера. date -d '+7 days' — через 7 дней.">date '+%Y-%m-%d_%H-%M-%S'</td><td>Форматированная дата/время<span class="hint">date -d 'yesterday' = вчера</span></td></tr>
+                <tr><td class="command tip" data-tip="base64 файл — закодировать. base64 -d файл — декодировать. echo 'текст' | base64 — encode строки. echo 'код' | base64 -d — decode.">echo 'текст' | base64</td><td>Base64 кодирование<span class="hint">base64 -d = декодировать</span></td></tr>
+                <tr><td class="command tip" data-tip="openssl rand -base64 32 — сгенерировать случайную строку. openssl passwd -6 — хеш пароля. openssl req -x509 ... — создать self-signed SSL сертификат.">openssl rand -base64 32</td><td>Сгенерировать случайную строку<span class="hint">Полезно для паролей, secret key</span></td></tr>
+                <tr><td class="command tip" data-tip="jq '.[]' файл.json — парсить JSON. curl ... | jq . — форматировать JSON. jq '.name' файл.json — поле name. jq -r '.name' — raw вывод (без кавычек).">cat файл.json | jq .</td><td>Парсить и форматировать JSON<span class="hint">-r = raw вывод (без кавычек)</span></td></tr>
+                <tr><td class="command tip" data-tip="timeout 10 команда — убить команду через 10 секунд. timeout --signal=KILL 10 команда — гарантированно убить. Полезно для зависающих команд.">timeout 10 команда</td><td>Ограничить время выполнения<span class="hint">--signal=KILL = гарантированно убить</span></td></tr>
+                <tr><td class="command tip" data-tip="screen -S имя — создать сессию. Ctrl+A, D — отключиться. screen -r имя — вернуться. screen -ls — список. screen -X -S имя quit — убить сессию.">screen -S имя</td><td>Screen (альтернатива tmux)<span class="hint">Ctrl+A, D = отключиться, процесс жив!</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 24. Система ==================== -->
+        <div class="section">
+            <h2>🖥️ Система и ядро <span class="badge badge-prod">PROD</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="uname -a — полная информация (ядро, архитектура, hostname). uname -r — только версия ядра. uname -m — архитектура (x86_64, aarch64). uname -n — hostname.">uname -a</td><td>Информация о системе и ядре<span class="hint">-r = версия ядра, -m = архитектура</span></td></tr>
+                <tr><td class="command tip" data-tip="lscpu — информация о CPU (ядра, потоки, модель). lsmem — память. lsusb — USB устройства. lspci — PCI устройства. lsblk — блочные устройства.">lscpu</td><td>Информация о CPU<span class="hint">lsmem = память, lspci = PCI, lsusb = USB</span></td></tr>
+                <tr><td class="command tip" data-tip="cat /proc/cpuinfo — детальная инфа о CPU. cat /proc/meminfo — память. cat /proc/version — версия ядра. cat /proc/loadavg — load average.">cat /proc/loadavg</td><td>Load Average из /proc<span class="hint">/proc = виртуальная ФС с инфо о системе</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo sysctl -p — применить /etc/sysctl.conf. sudo sysctl -w net.ipv4.ip_forward=1 — включить форвардинг. sysctl -a — все параметры.">sudo sysctl -p</td><td>Применить sysctl.conf<span class="hint">sysctl -w параметр=значение = установить</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo update-alternatives --config editor — выбрать редактор по умолчанию. update-alternatives --config python3 — выбрать Python. update-alternatives --list имя — все варианты.">sudo update-alternatives --config editor</td><td>Выбрать программу по умолчанию<span class="hint">--list = показать все варианты</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo timedatectl — статус времени. sudo timedatectl set-timezone Europe/Moscow — часовой пояс. sudo timedatectl set-ntp true — синхронизация через NTP.">sudo timedatectl set-timezone Europe/Moscow</td><td>Часовой пояс и время<span class="hint">set-ntp true = авто-синхронизация</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo locale-gen — сгенерировать локали из /etc/locale.gen. update-locale LANG=ru_RU.UTF-8 — язык системы. localectl — статус локалей.">sudo update-locale LANG=ru_RU.UTF-8</td><td>Язык системы (локаль)<span class="hint">locale -a = список доступных локалей</span></td></tr>
+                <tr><td class="command tip" data-tip="cat /etc/os-release — информация о дистрибутиве (Debian версия, NAME, VERSION_ID). hostnamectl — hostname и инфо о системе. lsb_release -a — аналог.">cat /etc/os-release</td><td>Информация о дистрибутиве<span class="hint">hostnamectl = hostname + система</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo apt install linux-headers-$(uname -r) — заголовки ядра (нужны для драйверов, VirtualBox, Docker). dkms — Dynamic Kernel Module Support.">sudo apt install linux-headers-$(uname -r)</td><td>Заголовки ядра (для драйверов)<span class="hint">Нужны для VirtualBox, NVIDIA, DKMS модулей</span></td></tr>
+                <tr><td class="command tip" data-tip="sudo grub-mkconfig -o /boot/grub/grub.cfg — обновить GRUB конфиг (для других дистрибутивов: update-grub). Редактировать /etc/default/grub.">sudo update-grub</td><td>Обновить GRUB загрузчик<span class="hint">/etc/default/grub = конфиг GRUB</span></td></tr>
+            </table>
+        </div>
+
+        <!-- ==================== 25. Bash скрипты ==================== -->
+        <div class="section">
+            <h2>📝 Bash скрипты <span class="badge badge-dev">DEV</span></h2>
+            <table>
+                <tr><th>Команда</th><th>Описание + Подсказка</th></tr>
+                <tr><td class="command tip" data-tip="#!/bin/bash — shebang (указывает интерпретатор). chmod +x скрипт.sh — сделать исполняемым. ./скрипт.sh — запустить. bash скрипт.sh — запустить через bash.">#!/bin/bash</td><td>Shebang (первая строка скрипта)<span class="hint">chmod +x скрипт.sh = сделать исполняемым</span></td></tr>
+                <tr><td class="command tip" data-tip="set -e — exit при ошибке. set -x — выводить каждую команду (debug). set -euo pipefail — строгий режим. set -u — ошибка при использовании неопределённых переменных.">set -euo pipefail</td><td>Строгий режим Bash (best practice)<span class="hint">-e=error exit, -u=undefined error, -o pipefail=pipe errors</span></td></tr>
+                <tr><td class="command tip" data-tip="if [ условие ]; then ... elif [ условие ]; then ... else ... fi. [[ ]] — расширенный тест. [ -f файл ] = файл существует. [ -d папка ] = директория. [ -z "$var" ] = пустая строка.">if [ -f "/etc/nginx/nginx.conf" ]; then</td><td>Условие if (проверка файла)<span class="hint">-f=файл, -d=директория, -z=пустая строка</span></td></tr>
+                <tr><td class="command tip" data-tip="for файл in *.txt; do echo "$файл"; done — цикл по файлам. for i in {1..10}; do echo $i; done — цикл 1-10. while read строка; do ... done < файл — по строкам файла.">for файл in *.log; do echo "$файл"; done</td><td>Цикл for по файлам<span class="hint">for i in {1..10} = цикл от 1 до 10</span></td></tr>
+                <tr><td class="command tip" data-tip="$1, $2, ... — аргументы скрипта. $# — количество аргументов. $@ — все аргументы. "$@" — все аргументы с сохранением пробелов. shift — сдвинуть аргументы.">#!/bin/bash\n# $1 = первый аргумент</td><td>Аргументы скрипта<span class="hint">$# = кол-во, $@ = все, "$@" = с пробелами</span></td></tr>
+                <tr><td class="command tip" data-tip="case $переменная in паттерн1) команды;; паттерн2) команды;; *) команды по умолчанию;; esac. Удобнее чем множество if/elif.">case $1 in\n  start) ... ;;\n  stop) ... ;;\nesac</td><td>Case (выбор по значению)<span class="hint">Удобнее множества if/elif</span></td></tr>
+                <tr><td class="command tip" data-tip="команда > файл — перенаправить stdout (перезаписать). команда >> файл — добавить. команда 2> файл — stderr. команда > файл 2>&1 — stdout+stderr в один файл.">команда > вывод.log 2>&1</td><td>Перенаправление вывода<span class="hint">2>&1 = stderr в stdout, >> = добавить</span></td></tr>
+                <tr><td class="command tip" data-tip="function имя() { команды; } или имя() { команды; }. local переменная — локальная в функции. return 0 — код выхода функции.">my_function() {\n  local var="hello"\n  echo $var\n}</td><td>Функция в Bash<span class="hint">local = локальная переменная, return = код выхода</span></td></tr>
+            </table>
+        </div>
+
+        <footer>
+            🐧 Шпаргалка Debian Linux — 25 разделов • 250+ команд • Dev & Deploy • Отсортировано по частоте использования<br>
+            <span style="font-size:11px; color:#555;">Наведите на команду для подсказки • Колонки адаптируются: 1 → 2 → 3 → 4</span>
+        </footer>
+    </div>
+<input type="search" id="search-input" placeholder="🔍 Поиск..." autocomplete="off">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        
+        document.querySelectorAll('.section').forEach(function(section) {
+            let hasVisible = false;
+            section.querySelectorAll('table tr').forEach(function(row) {
+                if (row.querySelector('th')) return;
+                if (query === '') {
+                    row.style.display = '';
+                    hasVisible = true;
+                    return;
+                }
+                const text = row.textContent.toLowerCase();
+                const match = text.includes(query);
+                row.style.display = match ? '' : 'none';
+                if (match) hasVisible = true;
+            });
+            section.style.display = hasVisible || query === '' ? '' : 'none';
+        });
+    });
+});
+</script>
+
+</body>
+</html>

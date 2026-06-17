@@ -190,7 +190,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s;
-            z-index: 100;
+            z-index: 1001;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5);
             font-family: 'Segoe UI', sans-serif;
             color: #e0e0e0;
@@ -243,25 +243,8 @@
             color: #4fc3f7;
         }
 
-        /* Запрет горизонтального скролла — только на мобилках (там таблицы скроллятся внутри) */
+/* Разрешаем перенос текста в ячейках (кроме команды) */
 @media (max-width: 800px) {
-body {
-    overflow-x: hidden;
-}
-}
-
-/* Адаптивность таблиц: на экранах уже 800px добавляем прокрутку */
-@media (max-width: 800px) {
-    .section table,
-    .container table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-        width: 100%;
-    }
-
-    /* Разрешаем перенос текста в ячейках (кроме команды) */
     .section table td,
     .section table th {
         white-space: normal;
@@ -296,9 +279,10 @@ body {
     /* Чтобы tooltip не выезжал за экран */
     .tip::after {
         width: 200px;
-        left: auto;
-        right: 0;
+        left: 0;
+        right: auto;
         bottom: 140%;
+        transform: none;
     }
     }
     

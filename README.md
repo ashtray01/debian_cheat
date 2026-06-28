@@ -2,6 +2,9 @@
 
 Единый HTML-файл (self-contained) с самыми важными командами Linux для разработки и деплоя.
 
+<img width="776" height="759" alt="image" src="https://github.com/user-attachments/assets/b107564d-87f4-4d02-a9cc-c4344f6f78e4" />
+
+
 > ⚠️ В Debian **sudo** не установлен по умолчанию.
 > Используй `su -` для перехода на root или установи sudo:
 > `apt update && apt install sudo -y && usermod -aG sudo $USER`

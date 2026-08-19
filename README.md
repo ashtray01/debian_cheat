@@ -37,12 +37,12 @@
 
 Как это работает:
 
-1. **Build** — репозиторий проверяется (`actions/checkout`) и подготовливается (`actions/configure-pages`), затем файлы загружаются как артефакт (`actions/upload-pages-artifact`).
+1. **Build** — репозиторий проверяется (`actions/checkout`), затем `actions/configure-pages` с параметром `enablement: true` включает GitHub Pages для репозитория (если он ещё не активирован) и подготавливает деплой. Файлы загружаются как артефакт (`actions/upload-pages-artifact`).
 2. **Deploy** — артефакт публикуется на Pages (`actions/deploy-pages`).
 
 Публичный адрес: <https://ashtray01.github.io/debian_cheat/>
 
-Чтобы включить деплой, убедитесь, что в настройках репозитория **Settings → Pages → Build and deployment → Source** выбрано значение **GitHub Actions**. Права `pages: write` и `id-token: write` уже заданы в workflow, поэтому дополнительная настройка не требуется.
+Отдельная настройка не требуется: права `pages: write` и `id-token: write` уже заданы в workflow, а `enablement: true` включает Pages автоматически через API. Если вы всё же хотите настроить вручную, выберите в **Settings → Pages → Build and deployment → Source** значение **GitHub Actions**.
 
 ## Разработка
 

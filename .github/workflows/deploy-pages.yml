@@ -19,10 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
+        with:
+          # Включает GitHub Pages для репозитория через API
+          # (build_type: workflow), если Pages ещё не активирован.
+          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

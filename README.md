@@ -42,7 +42,17 @@
 
 Публичный адрес: <https://ashtray01.github.io/debian_cheat/>
 
-Отдельная настройка не требуется: права `pages: write` и `id-token: write` уже заданы в workflow, а `enablement: true` включает Pages автоматически через API. Если вы всё же хотите настроить вручную, выберите в **Settings → Pages → Build and deployment → Source** значение **GitHub Actions**.
+### Включение GitHub Pages (один раз)
+
+Workflow пытается включить Pages автоматически через `enablement: true`, но GitHub не всегда позволяет это сделать программно (возвращает `Not Found`). Поэтому **один раз** включите Pages вручную:
+
+1. Откройте **Settings → Pages** в репозитории.
+2. В блоке **Build and deployment** в поле **Source** выберите **GitHub Actions**.
+3. Нажмите **Save** — после этого снова запустите workflow (вкладка **Actions → Deploy to GitHub Pages → Run workflow**).
+
+Права `pages: write` и `id-token: write` уже заданы в workflow, дополнительная настройка не требуется. При каждом пуше в `main` сайт будет обновляться автоматически.
+
+> **Примечание:** корневой файл `index.html` автоматически перенаправляет на основной справочник `cheat_linux.html`, поэтому сайт открывается по адресу `https://ashtray01.github.io/debian_cheat/`.
 
 ## Разработка
 

@@ -1,5 +1,7 @@
 # 🐧 Debian Knowledge Base — Dev & Deploy
 
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-brightgreen)](https://ashtray01.github.io/debian_cheat/)
+
 Автономная русскоязычная база знаний по Debian, разработке и эксплуатации: один HTML-файл без внешних зависимостей. Откройте `cheat_linux.html` в современном браузере — интернет и установка пакетов для самого справочника не нужны.
 
 ![Интерфейс Debian Knowledge Base](Screenshot_1.jpg)
@@ -28,6 +30,19 @@
 2. Найдите нужную тему через строку поиска: например, `dns`, `бэкап`, `postgres`, `ошибка`, `docker`.
 3. Нажмите на команду для подсказки или используйте кнопку «Копировать».
 4. Для рискованных действий сначала прочитайте подсказку и выполните предложенную диагностическую проверку.
+
+## Развёртывание
+
+Сайт публикуется на **GitHub Pages** автоматически с помощью GitHub Actions. Рабочий процесс в `.github/workflows/deploy-pages.yml` срабатывает при каждом пуше в ветку `main`, а также вручную через вкладку **Actions** (workflow_dispatch).
+
+Как это работает:
+
+1. **Build** — репозиторий проверяется (`actions/checkout`) и подготовливается (`actions/configure-pages`), затем файлы загружаются как артефакт (`actions/upload-pages-artifact`).
+2. **Deploy** — артефакт публикуется на Pages (`actions/deploy-pages`).
+
+Публичный адрес: <https://ashtray01.github.io/debian_cheat/>
+
+Чтобы включить деплой, убедитесь, что в настройках репозитория **Settings → Pages → Build and deployment → Source** выбрано значение **GitHub Actions**. Права `pages: write` и `id-token: write` уже заданы в workflow, поэтому дополнительная настройка не требуется.
 
 ## Разработка
 

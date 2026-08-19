@@ -1,8 +1,10 @@
 # 🐧 Debian Knowledge Base — Dev & Deploy
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-brightgreen)](https://ashtray01.github.io/debian_cheat/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-brightgreen?style=flat-square&logo=github)](https://ashtray01.github.io/debian_cheat/)
 
 Автономная русскоязычная база знаний по Debian, разработке и эксплуатации: один HTML-файл без внешних зависимостей. Откройте `cheat_linux.html` в современном браузере — интернет и установка пакетов для самого справочника не нужны.
+
+**Живая версия:** <https://ashtray01.github.io/debian_cheat/>
 
 ![Интерфейс Debian Knowledge Base](Screenshot_1.jpg)
 
@@ -33,26 +35,18 @@
 
 ## Развёртывание
 
-Сайт публикуется на **GitHub Pages** автоматически с помощью GitHub Actions. Рабочий процесс в `.github/workflows/deploy-pages.yml` срабатывает при каждом пуше в ветку `main`, а также вручную через вкладку **Actions** (workflow_dispatch).
+Сайт публикуется на **GitHub Pages** и доступен по адресу: **<https://ashtray01.github.io/debian_cheat/>**
+
+Деплой полностью автоматизирован через GitHub Actions — рабочий процесс в `.github/workflows/deploy-pages.yml` срабатывает при каждом пуше в ветку `main`, а также вручную через вкладку **Actions** (workflow_dispatch).
 
 Как это работает:
 
-1. **Build** — репозиторий проверяется (`actions/checkout`), затем `actions/configure-pages` с параметром `enablement: true` включает GitHub Pages для репозитория (если он ещё не активирован) и подготавливает деплой. Файлы загружаются как артефакт (`actions/upload-pages-artifact`).
+1. **Build** — репозиторий проверяется (`actions/checkout`), затем `actions/configure-pages` подготавливает деплой, а файлы загружаются как артефакт (`actions/upload-pages-artifact`).
 2. **Deploy** — артефакт публикуется на Pages (`actions/deploy-pages`).
 
-Публичный адрес: <https://ashtray01.github.io/debian_cheat/>
+Права `pages: write` и `id-token: write` заданы в workflow, поэтому отдельная настройка не требуется. При каждом пуше в `main` сайт обновляется автоматически.
 
-### Включение GitHub Pages (один раз)
-
-Workflow пытается включить Pages автоматически через `enablement: true`, но GitHub не всегда позволяет это сделать программно (возвращает `Not Found`). Поэтому **один раз** включите Pages вручную:
-
-1. Откройте **Settings → Pages** в репозитории.
-2. В блоке **Build and deployment** в поле **Source** выберите **GitHub Actions**.
-3. Нажмите **Save** — после этого снова запустите workflow (вкладка **Actions → Deploy to GitHub Pages → Run workflow**).
-
-Права `pages: write` и `id-token: write` уже заданы в workflow, дополнительная настройка не требуется. При каждом пуше в `main` сайт будет обновляться автоматически.
-
-> **Примечание:** корневой файл `index.html` автоматически перенаправляет на основной справочник `cheat_linux.html`, поэтому сайт открывается по адресу `https://ashtray01.github.io/debian_cheat/`.
+> **Примечание:** корневой файл `index.html` автоматически перенаправляет на основной справочник `cheat_linux.html`, поэтому сайт открывается по корневому адресу `https://ashtray01.github.io/debian_cheat/`.
 
 ## Разработка
 
